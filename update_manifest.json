@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
-  "notes": "V0.4: tradução automática EN→PT, tradução após o Whisper, arquivo SRT em português e modos EN+PT / somente EN / somente PT.",
+  "version": "0.4.1",
+  "notes": "V0.4.1: corrige limite do tradutor online usando tradução em lotes, espaçamento entre requisições e espera automática em caso de rate limit.",
   "files": [
     {
       "path": "requirements.txt",
@@ -12,11 +12,11 @@
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "e364931a8afff672985ee99f795e6d8b20ff33c55d71d757ec211ec6689b3c19"
+      "sha256": "a4cb53992521b7e5ed6d1ffb0e8cfa6ec42aa2924977cad9f08f33cb61f0c280"
     },
     {
       "path": "english_player/translation_worker.py",
-      "sha256": "6708b78df873bcfa5bcb38a38d48660b9e591ce172a08a3f729175ee9a9b0a92"
+      "sha256": "0a09e15ca5c2d09dffd4f5f2ee3fbd76e3b66ad7a23ed39ce4ecbf81d10391ec"
     },
     {
       "path": "english_player/v040_window.py",
