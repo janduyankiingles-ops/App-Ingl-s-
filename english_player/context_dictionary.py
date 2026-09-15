@@ -291,6 +291,7 @@ def _choose_contextual_definition(
             sentence_en,
         )
 
+        # Prefere definições com exemplo e, em empates, as primeiras do verbete.
         if example:
             score += 0.25
         score -= order * 0.015
