@@ -1,21 +1,21 @@
 {
-  "version": "0.4.6",
-  "notes": "V0.4.6: adiciona a opção Cores simultâneas, ativada por padrão. Cada palavra em inglês e sua correspondente em português aparecem ao mesmo tempo com a mesma cor, sem precisar clicar.",
+  "version": "0.4.7",
+  "notes": "V0.4.7: corrige a falha de integridade da V0.4.6 usando um arquivo novo e validado byte a byte. Mantém o modo Cores simultâneas, que colore ao mesmo tempo cada par inglês-português com a mesma cor.",
   "files": [
     {
-      "path": "english_player/v046_window.py",
-      "sha256": "2c7de463d9f8f0152d6314ffbbabc0e38db7c6488123f0141ba326d9abfc6959",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v046_window.py?v=0.4.6"
+      "path": "english_player/v047_window.py",
+      "sha256": "8f0c6820964514e90e07f0d6d27b4965c9ded55a886a1e74276c87b491aaf417",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v047_window.py?v=0.4.7"
     },
     {
       "path": "main.py",
-      "sha256": "b301c7977027eb43ce3cb8dc5e45354c789739139ba67e142a55db9dbf7eebbe",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.6"
+      "sha256": "3afb5fd477451dfca35f690ec3e3c91c5869e9c018eb0cabfad92292af4cfff1",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.7"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "6db0695c4fcf05ba3f49a23cd3b98330bd10272c03d3fb9f0833e000c9431da1",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.6"
+      "sha256": "3071b200859755ea2fb6d7965144b32eaf5419624b2e8a146425c1f4a1a934af",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.7"
     }
   ],
   "delete": []
