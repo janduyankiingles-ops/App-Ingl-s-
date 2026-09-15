@@ -1,31 +1,26 @@
 {
-  "version": "0.5.1",
-  "notes": "V0.5.1: mantém o Dicionário Contextual da V0.5 e melhora o atualizador com retentativas automáticas para quedas temporárias de conexão, incluindo WinError 10054. Também repete o download automaticamente se um arquivo chegar com hash diferente.",
+  "version": "0.5.2",
+  "notes": "V0.5.2: corrige o botão Ouvir pronúncia. O app baixa o áudio do dicionário para cache local e toca o arquivo local; quando não houver áudio disponível, usa a voz inglesa instalada no Windows como fallback.",
   "files": [
     {
-      "path": "english_player/context_dictionary.py",
-      "sha256": "d4c1f6d8cb9a500b3ceef1642f1c2725052b778cc4d0a3d3e6c6cc0e1574f420",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/context_dictionary.py?v=0.5.1"
+      "path": "english_player/pronunciation_worker.py",
+      "sha256": "8b831e78a2c9883587f343cd08659752f4345ec649d0937a626e08f9475f7e83",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/pronunciation_worker.py?v=0.5.2"
     },
     {
-      "path": "english_player/v050_window.py",
-      "sha256": "cb50643f34c6ac5c747d35be8114bdd86e6cfb1a57a3577b2733c7ceb4518671",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v050_window.py?v=0.5.1"
-    },
-    {
-      "path": "english_player/update_service.py",
-      "sha256": "c702f3d1e62e53db32e2013ac942911ee42106d3471105411105a37fe0279772",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/update_service.py?v=0.5.1"
+      "path": "english_player/v052_window.py",
+      "sha256": "f780f9e25bb80a4bc01f656e6ae2383f669e4475f464801b888501755f54e95f",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v052_window.py?v=0.5.2"
     },
     {
       "path": "main.py",
-      "sha256": "cc61a130235800551f54d586a77f9f45a15014f1c1c5d8001aea9fadc53e7e1a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.5.1"
+      "sha256": "811d586f00e58884adb45293b32a99785b75c9def58a21860539a6c47bdb48f4",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.5.2"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "799d5b3ae9f50c3555d182ce056e308f614fd5a8d178b8db22b1a6ccdec0481c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.5.1"
+      "sha256": "8ac26b98304b45a83b65cd942bd668bd618ebfb8e2d4e87ecc9b4930d245917c",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.5.2"
     }
   ],
   "delete": []
