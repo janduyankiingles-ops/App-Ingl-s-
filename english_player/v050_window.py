@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import re
 
 from PySide6.QtCore import QUrl
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -67,6 +68,7 @@ class MainWindowV050(MainWindowV048):
         dictionary_layout.addWidget(self.dictionary_browser)
         dictionary_layout.addLayout(audio_row)
 
+        # Insere antes do espaço expansível e do botão Salvar.
         insert_at = max(0, side_layout.count() - 2)
         side_layout.insertWidget(insert_at, self.dictionary_group)
 
@@ -82,6 +84,7 @@ class MainWindowV050(MainWindowV048):
         )
 
     def _on_word_clicked_detailed(self, word: str, english_word_index: int):
+        # Mantém o comportamento visual das cores simultâneas.
         super()._on_word_clicked_detailed(word, english_word_index)
 
         clean = word.strip(".,!?;:\"'“”‘’()[]{}")
