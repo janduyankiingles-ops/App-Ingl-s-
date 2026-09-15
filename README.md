@@ -2,12 +2,13 @@
 
 Repositório oficial de atualização do aplicativo de aprendizagem de inglês por vídeos.
 
-## Atualização incremental
+## Versão atual: 0.4.0
 
-O aplicativo consulta `update_manifest.json` neste repositório. Quando uma nova versão é publicada, ele compara os hashes dos arquivos locais e baixa apenas os arquivos alterados.
+Novidades da V0.4:
+- tradução automática de inglês para português;
+- tradução automática após a geração da legenda com Whisper;
+- salvamento de legenda portuguesa em SRT;
+- modos EN + PT, somente EN e somente PT;
+- atualização incremental: o aplicativo baixa apenas os arquivos alterados.
 
-## Versão base
-
-Versão atual: **0.3.0**
-
-A V0.3.0 é a versão base já instalada no computador. As próximas atualizações serão publicadas aqui de forma incremental.
+O arquivo `update_manifest.json` é usado pelo atualizador interno do aplicativo.
