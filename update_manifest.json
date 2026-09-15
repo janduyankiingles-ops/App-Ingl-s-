@@ -1,21 +1,26 @@
 {
-  "version": "0.4.8",
-  "notes": "V0.4.8: elimina o atraso das cores simultâneas. O pareamento visual agora é calculado instantaneamente em memória, sem traduzir cada palavra no Argos antes de colorir.",
+  "version": "0.5.0",
+  "notes": "V0.5.0: adiciona dicionário contextual ao clicar nas palavras. Mostra tradução no contexto, IPA, classe gramatical, significado, definição em inglês, exemplo, sinônimos e áudio de pronúncia quando disponível. A tradução contextual continua funcionando mesmo se o serviço de dicionário estiver indisponível.",
   "files": [
     {
-      "path": "english_player/v048_window.py",
-      "sha256": "105c2483a6820487d7eff7b8388fb67042260af7a4ec0f39d89bf38a458d328f",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v048_window.py?v=0.4.8"
+      "path": "english_player/context_dictionary.py",
+      "sha256": "d4c1f6d8cb9a500b3ceef1642f1c2725052b778cc4d0a3d3e6c6cc0e1574f420",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/context_dictionary.py?v=0.5.0"
+    },
+    {
+      "path": "english_player/v050_window.py",
+      "sha256": "cb50643f34c6ac5c747d35be8114bdd86e6cfb1a57a3577b2733c7ceb4518671",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v050_window.py?v=0.5.0"
     },
     {
       "path": "main.py",
-      "sha256": "136d38640a2a94f1d3c5d1430d9a07cb61ea9a8603ada5ed8105245bf249acad",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.8"
+      "sha256": "cc61a130235800551f54d586a77f9f45a15014f1c1c5d8001aea9fadc53e7e1a",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.5.0"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "e34f8f5193d121a909536c985907304d8bd2240ea27b0aa21bc5f2961c6e0109",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.8"
+      "sha256": "2c12b8ea17aeb6f9f72a6b02aca218bbc4508a46df9e365a8f6c45ad769e0b34",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.5.0"
     }
   ],
   "delete": []
