@@ -16,7 +16,7 @@
     },
     {
       "path": "english_player/translation_worker.py",
-      "sha256": "6a37053b042f934a258da11cda779d9bfa2be70997687eaad066ef119c70bbc4"
+      "sha256": "e6e65ff0fe1a3c7a1c84608c5229bb2226e52cf38410c6ee65adc4d5fb205a35"
     },
     {
       "path": "english_player/v040_window.py",
