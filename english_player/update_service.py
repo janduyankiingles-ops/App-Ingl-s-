@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import os
 import shutil
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -15,7 +17,9 @@ from PySide6.QtCore import QThread, Signal
 
 from .data_paths import install_dir, updates_dir
 
-USER_AGENT = "EnglishVideoPlayer-Updater/1.0"
+USER_AGENT = "EnglishVideoPlayer-Updater/1.1"
+TRANSIENT_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
+RETRY_DELAYS = (1.0, 2.0, 4.0, 7.0)
 
 
 @dataclass
@@ -59,24 +63,59 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def fetch_bytes(url: str, timeout: int = 30) -> bytes:
-    # Evita conteúdo antigo em cache, especialmente no raw.githubusercontent.com.
+def _fresh_url(url: str, attempt: int) -> str:
     separator = "&" if "?" in url else "?"
-    fresh_url = f"{url}{separator}_evp_cache={int(__import__('time').time() * 1000)}"
-    request = urllib.request.Request(
-        fresh_url,
-        headers={
-            "User-Agent": USER_AGENT,
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache",
-        },
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return response.read()
+    stamp = int(time.time() * 1000)
+    return f"{url}{separator}_evp_cache={stamp}_{attempt}"
+
+
+def fetch_bytes(url: str, timeout: int = 30, retries: int = 4) -> bytes:
+    last_error = None
+    attempts = max(1, int(retries) + 1)
+
+    for attempt in range(attempts):
+        request = urllib.request.Request(
+            _fresh_url(url, attempt),
+            headers={
+                "User-Agent": USER_AGENT,
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+                "Connection": "close",
+                "Accept": "*/*",
+            },
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return response.read()
+
+        except urllib.error.HTTPError as exc:
+            last_error = exc
+            if exc.code not in TRANSIENT_HTTP_CODES or attempt >= attempts - 1:
+                raise
+
+        except (
+            urllib.error.URLError,
+            ConnectionResetError,
+            ConnectionAbortedError,
+            TimeoutError,
+            http.client.IncompleteRead,
+            OSError,
+        ) as exc:
+            last_error = exc
+            if attempt >= attempts - 1:
+                raise
+
+        delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+        time.sleep(delay)
+
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("Falha desconhecida ao baixar arquivo.")
 
 
 def fetch_manifest(manifest_url: str) -> dict:
-    raw = fetch_bytes(manifest_url, timeout=20)
+    raw = fetch_bytes(manifest_url, timeout=20, retries=4)
     data = json.loads(raw.decode("utf-8"))
     if not isinstance(data, dict):
         raise ValueError("Manifesto de atualização inválido.")
@@ -115,7 +154,9 @@ def compare_manifest(manifest: dict, manifest_url: str) -> UpdateInfo:
                 same = False
 
         if not same:
-            url = item.get("url") or urllib.parse.urljoin(base_url, urllib.parse.quote(rel))
+            url = item.get("url") or urllib.parse.urljoin(
+                base_url, urllib.parse.quote(rel)
+            )
             files.append(UpdateFile(path=rel, sha256=expected, url=str(url)))
             if rel.replace("\\", "/") == "requirements.txt":
                 requirements_changed = True
@@ -156,9 +197,16 @@ class UpdateCheckWorker(QThread):
             }
             self.completed.emit(payload)
         except urllib.error.HTTPError as exc:
-            self.failed.emit(f"Servidor respondeu HTTP {exc.code}. Verifique a fonte de atualização.")
+            self.failed.emit(
+                f"Servidor respondeu HTTP {exc.code}. "
+                "O programa tentou novamente automaticamente, mas o servidor "
+                "continuou indisponível."
+            )
         except urllib.error.URLError as exc:
-            self.failed.emit(f"Não foi possível acessar a internet/fonte de atualização: {exc.reason}")
+            self.failed.emit(
+                "Não foi possível acessar a fonte de atualização após várias "
+                f"tentativas: {exc.reason}"
+            )
         except Exception as exc:
             self.failed.emit(str(exc))
 
@@ -186,10 +234,24 @@ class UpdateDownloadWorker(QThread):
             for index, item in enumerate(self.info.files, start=1):
                 pct = int(((index - 1) / total) * 90)
                 self.progress.emit(pct, f"Baixando {item.path}...")
-                data = fetch_bytes(item.url, timeout=60)
+
+                data = fetch_bytes(item.url, timeout=60, retries=4)
                 actual = hashlib.sha256(data).hexdigest().lower()
+
                 if actual != item.sha256.lower():
-                    raise ValueError(f"Falha de integridade em {item.path}.")
+                    self.progress.emit(
+                        pct,
+                        f"Arquivo {item.path} veio diferente; baixando novamente...",
+                    )
+                    data = fetch_bytes(item.url, timeout=60, retries=2)
+                    actual = hashlib.sha256(data).hexdigest().lower()
+
+                if actual != item.sha256.lower():
+                    raise ValueError(
+                        f"Falha de integridade em {item.path}. "
+                        f"Esperado {item.sha256.lower()[:12]}..., "
+                        f"recebido {actual[:12]}...."
+                    )
 
                 target = payload_dir / item.path
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -205,9 +267,25 @@ class UpdateDownloadWorker(QThread):
                 "python_executable": sys.executable,
                 "main_file": str(install_dir() / "main.py"),
             }
+
             plan_path = base / "plan.json"
-            plan_path.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+            plan_path.write_text(
+                json.dumps(plan, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
             self.progress.emit(100, "Atualização pronta para instalar.")
             self.completed.emit(str(plan_path))
+
+        except (
+            ConnectionResetError,
+            ConnectionAbortedError,
+            TimeoutError,
+            http.client.IncompleteRead,
+            OSError,
+        ) as exc:
+            self.failed.emit(
+                "A conexão com o servidor foi interrompida mesmo após várias "
+                f"tentativas automáticas. Detalhe: {exc}"
+            )
         except Exception as exc:
             self.failed.emit(str(exc))
