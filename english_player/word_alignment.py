@@ -116,6 +116,7 @@ class WordAlignmentWorker(QThread):
         if not translated_norm:
             return []
 
+        # Primeiro tenta uma correspondência exata de uma ou mais palavras.
         if len(translated_norm) > 1:
             size = len(translated_norm)
             for start in range(0, len(pt_norm) - size + 1):
@@ -127,6 +128,8 @@ class WordAlignmentWorker(QThread):
                 if candidate == token:
                     return [idx]
 
+        # Depois aceita flexões próximas: know/saber -> sei pode cair no fallback,
+        # love/amar -> amo normalmente é reconhecido aqui.
         best_index = -1
         best_score = 0.0
         for idx, token in enumerate(pt_norm):
