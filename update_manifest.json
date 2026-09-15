@@ -1,36 +1,36 @@
 {
-  "version": "0.4.3",
-  "notes": "V0.4.3: corrige a falha de integridade da V0.4.2, troca definitivamente a tradução para Argos Translate local/offline e adiciona cache-busting ao atualizador.",
+  "version": "0.4.4",
+  "notes": "V0.4.4: corrige definitivamente a falha de integridade da atualização, mantendo a tradução local/offline com Argos Translate e o cache-busting do atualizador.",
   "files": [
     {
       "path": "requirements.txt",
       "sha256": "9234ff8fd0f89bab2b9fb42aa55462779b8bebbe69aa81d16980c887aa937bf8",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/requirements.txt?v=0.4.3"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/requirements.txt?v=0.4.4"
     },
     {
       "path": "main.py",
       "sha256": "c12e569ca3a7adba10722e3c63ddc26172c2167161adf751e5df1d746c2a04c0",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.3"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.4"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "372834a6693979af7e48b080144205f7a072171e3e4c916daea60f37e667ea0e",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.3"
+      "sha256": "e86fe0897e9472ec1ea3bc393a27eda1799b34ba2a894feca1726853c6a22e66",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.4"
     },
     {
       "path": "english_player/translation_worker_local.py",
-      "sha256": "7bb1c64e8e73bf7312da73acf48b6adf3e3446fde23ae8a02050015e196aeee8",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/translation_worker_local.py?v=0.4.3"
+      "sha256": "7a139d549a5c550a68a67598293a082d143555ef882be422b6bbfcc6516b0848",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/translation_worker_local.py?v=0.4.4"
     },
     {
       "path": "english_player/v043_window.py",
       "sha256": "79fa6a8b43220a8f20551a3ab9f1319b9091b7bd4ba5457d61ed3f7a7b09aa66",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v043_window.py?v=0.4.3"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v043_window.py?v=0.4.4"
     },
     {
       "path": "english_player/update_service.py",
       "sha256": "cf1df35dc152fa919297a05d2d36a4597302f24c5fd2a0714d924599dfee085c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/update_service.py?v=0.4.3"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/update_service.py?v=0.4.4"
     }
   ],
   "delete": []
