@@ -1,10 +1,10 @@
 {
-  "version": "0.4.1",
-  "notes": "V0.4.1: corrige limite do tradutor online usando tradução em lotes, espaçamento entre requisições e espera automática em caso de rate limit.",
+  "version": "0.4.2",
+  "notes": "V0.4.2: substitui o tradutor online por tradução local/offline com Argos Translate. O modelo inglês-português é baixado uma única vez e depois funciona sem limite de requisições e sem internet.",
   "files": [
     {
       "path": "requirements.txt",
-      "sha256": "dc596dc86369d52e5b26710ae3fc6c555e41da6f3d52e3d3a49e3846cb1812f5"
+      "sha256": "dd0745e02242b5f55482feee32e422926a69825bac97f995606a5669ce8d9517"
     },
     {
       "path": "main.py",
@@ -12,11 +12,11 @@
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "a4cb53992521b7e5ed6d1ffb0e8cfa6ec42aa2924977cad9f08f33cb61f0c280"
+      "sha256": "ea17d56b5d90fa75f25045ebe92c8aa6a3c40c95babe5447c8fc65036ecf7d3b"
     },
     {
       "path": "english_player/translation_worker.py",
-      "sha256": "0a09e15ca5c2d09dffd4f5f2ee3fbd76e3b66ad7a23ed39ce4ecbf81d10391ec"
+      "sha256": "6a37053b042f934a258da11cda779d9bfa2be70997687eaad066ef119c70bbc4"
     },
     {
       "path": "english_player/v040_window.py",

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import re
-import time
+import os
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
@@ -10,23 +9,19 @@ from .models import SubtitleSegment
 from .srt_parser import save_srt
 
 
+_CACHED_TRANSLATION = None
+
+
 class TranslationWorker(QThread):
     progress = Signal(int, str)
     completed = Signal(object, str)
     failed = Signal(str)
-
-    MAX_BATCH_CHARS = 3600
-    MAX_BATCH_SEGMENTS = 35
-    MIN_REQUEST_INTERVAL = 1.10
-
-    _MARKER_RE = re.compile(r"⟦(\d{4})⟧")
 
     def __init__(self, segments: list[SubtitleSegment], video_path: str, parent=None):
         super().__init__(parent)
         self.segments = list(segments)
         self.video_path = video_path
         self._cancel_requested = False
-        self._last_request_at = 0.0
 
     def cancel(self):
         self._cancel_requested = True
@@ -36,45 +31,35 @@ class TranslationWorker(QThread):
             if not self.segments:
                 raise RuntimeError("Não há legenda em inglês para traduzir.")
 
-            self.progress.emit(1, "Preparando tradutor EN → PT...")
-            try:
-                from deep_translator import GoogleTranslator
-            except ImportError as exc:
-                raise RuntimeError(
-                    "O componente de tradução não está instalado. "
-                    "Instale novamente a atualização para atualizar as dependências."
-                ) from exc
+            self.progress.emit(1, "Preparando tradutor local EN → PT...")
+            translation = self._get_or_install_translation()
 
-            translator = GoogleTranslator(source="en", target="pt")
+            if self._cancel_requested or translation is None:
+                return
+
             output: list[SubtitleSegment] = []
             total = len(self.segments)
-            batches = self._build_batches(self.segments)
-            translated_count = 0
 
-            for batch_number, batch in enumerate(batches, start=1):
+            for pos, segment in enumerate(self.segments, start=1):
                 if self._cancel_requested:
                     return
 
-                translated_texts = self._translate_batch(translator, batch)
+                text = (segment.text or "").strip()
+                translated = translation.translate(text).strip() if text else ""
 
-                for segment, translated in zip(batch, translated_texts):
-                    output.append(
-                        SubtitleSegment(
-                            index=segment.index,
-                            start_ms=segment.start_ms,
-                            end_ms=segment.end_ms,
-                            text=translated.strip(),
-                        )
+                output.append(
+                    SubtitleSegment(
+                        index=segment.index,
+                        start_ms=segment.start_ms,
+                        end_ms=segment.end_ms,
+                        text=translated,
                     )
+                )
 
-                translated_count += len(batch)
-                pct = min(99, max(2, int((translated_count / total) * 100)))
+                pct = min(99, max(2, int((pos / total) * 100)))
                 self.progress.emit(
                     pct,
-                    (
-                        f"Traduzindo... {translated_count}/{total} trechos "
-                        f"(lote {batch_number}/{len(batches)})"
-                    ),
+                    f"Traduzindo localmente... {pos}/{total} trechos",
                 )
 
             if self._cancel_requested:
@@ -82,156 +67,145 @@ class TranslationWorker(QThread):
 
             output_path = self._choose_output_path()
             save_srt(output, output_path)
-            self.progress.emit(100, "Tradução concluída.")
+            self.progress.emit(100, "Tradução local concluída.")
             self.completed.emit(output, str(output_path))
+
         except Exception as exc:
-            self.failed.emit(str(exc))
+            self.failed.emit(self._friendly_error(exc))
 
-    def _build_batches(
-        self, segments: list[SubtitleSegment]
-    ) -> list[list[SubtitleSegment]]:
-        batches: list[list[SubtitleSegment]] = []
-        current: list[SubtitleSegment] = []
-        current_chars = 0
+    def _get_or_install_translation(self):
+        global _CACHED_TRANSLATION
 
-        for segment in segments:
-            text = (segment.text or "").strip()
-            estimated = len(text) + 12
+        if _CACHED_TRANSLATION is not None:
+            return _CACHED_TRANSLATION
 
-            if current and (
-                len(current) >= self.MAX_BATCH_SEGMENTS
-                or current_chars + estimated > self.MAX_BATCH_CHARS
-            ):
-                batches.append(current)
-                current = []
-                current_chars = 0
+        os.environ.setdefault("ARGOS_DEVICE_TYPE", "cpu")
+        os.environ.setdefault("ARGOS_COMPUTE_TYPE", "int8_float32")
+        os.environ.setdefault("ARGOS_CHUNK_TYPE", "NONE")
+        os.environ.setdefault("ARGOS_INTER_THREADS", "1")
+        os.environ.setdefault("ARGOS_INTRA_THREADS", "0")
 
-            current.append(segment)
-            current_chars += estimated
-
-        if current:
-            batches.append(current)
-
-        return batches
-
-    def _translate_batch(self, translator, batch: list[SubtitleSegment]) -> list[str]:
-        if not batch:
-            return []
-
-        if len(batch) == 1:
-            text = (batch[0].text or "").strip()
-            if not text:
-                return [""]
-            return [self._request_with_retry(translator, text).strip()]
-
-        payload_lines: list[str] = []
-        expected_ids: list[str] = []
-
-        for pos, segment in enumerate(batch, start=1):
-            marker_id = f"{pos:04d}"
-            expected_ids.append(marker_id)
-            text = (segment.text or "").strip()
-            payload_lines.append(f"⟦{marker_id}⟧ {text}")
-
-        payload = "\n".join(payload_lines)
-        translated_payload = self._request_with_retry(translator, payload)
-
-        parsed = self._parse_marked_translation(translated_payload)
-        if all(marker_id in parsed for marker_id in expected_ids):
-            return [parsed[marker_id].strip() for marker_id in expected_ids]
-
-        middle = len(batch) // 2
-        if middle <= 0:
+        try:
+            import argostranslate.package as argos_package
+            import argostranslate.translate as argos_translate
+        except ImportError as exc:
             raise RuntimeError(
-                "O serviço de tradução retornou uma resposta que não pôde ser separada."
-            )
+                "O tradutor local ainda não está instalado. "
+                "Abra Atualizações novamente e reinstale a versão 0.4.2 para "
+                "que as novas dependências sejam instaladas."
+            ) from exc
 
-        left = self._translate_batch(translator, batch[:middle])
-        right = self._translate_batch(translator, batch[middle:])
-        return left + right
-
-    def _parse_marked_translation(self, translated: str) -> dict[str, str]:
-        matches = list(self._MARKER_RE.finditer(translated or ""))
-        result: dict[str, str] = {}
-
-        for index, match in enumerate(matches):
-            marker_id = match.group(1)
-            start = match.end()
-            end = matches[index + 1].start() if index + 1 < len(matches) else len(translated)
-            result[marker_id] = translated[start:end].strip()
-
-        return result
-
-    def _request_with_retry(self, translator, text: str) -> str:
-        last_error: Exception | None = None
-
-        for attempt in range(5):
-            if self._cancel_requested:
-                return ""
-
-            self._respect_rate_limit()
-
-            try:
-                result = translator.translate(text)
-                if result is None:
-                    raise RuntimeError("O serviço de tradução retornou uma resposta vazia.")
-                return str(result)
-            except Exception as exc:
-                last_error = exc
-                message = str(exc).lower()
-                rate_limited = any(
-                    token in message
-                    for token in (
-                        "too many requests",
-                        "requests per second",
-                        "429",
-                        "rate limit",
-                    )
-                )
-
-                if attempt >= 4:
-                    break
-
-                if rate_limited:
-                    waits = (12, 22, 35, 50)
-                    wait_seconds = waits[min(attempt, len(waits) - 1)]
-                    self.progress.emit(
-                        1,
-                        (
-                            "O tradutor pediu uma pausa por excesso de requisições. "
-                            f"Retomando em {wait_seconds}s..."
-                        ),
-                    )
-                else:
-                    waits = (2, 4, 8, 15)
-                    wait_seconds = waits[min(attempt, len(waits) - 1)]
-
-                self._sleep_interruptible(wait_seconds)
-
-        raise RuntimeError(
-            "A tradução online não pôde ser concluída após novas tentativas. "
-            "O programa agora reduz e espaça as requisições automaticamente, "
-            "mas o serviço pode estar temporariamente indisponível.\n\n"
-            f"Detalhe: {last_error}"
-        )
-
-    def _respect_rate_limit(self):
-        elapsed = time.monotonic() - self._last_request_at
-        remaining = self.MIN_REQUEST_INTERVAL - elapsed
-        if remaining > 0:
-            self._sleep_interruptible(remaining)
+        translation = self._find_installed_translation(argos_translate)
+        if translation is not None:
+            _CACHED_TRANSLATION = translation
+            return translation
 
         if self._cancel_requested:
-            return
+            return None
 
-        self._last_request_at = time.monotonic()
+        self.progress.emit(
+            2,
+            "Primeiro uso: baixando o modelo de tradução inglês → português. "
+            "Isso acontece apenas uma vez...",
+        )
 
-    def _sleep_interruptible(self, seconds: float):
-        deadline = time.monotonic() + max(0.0, float(seconds))
-        while time.monotonic() < deadline:
+        try:
+            argos_package.update_package_index()
+            available = argos_package.get_available_packages()
+
+            candidates = [
+                package
+                for package in available
+                if getattr(package, "from_code", None) == "en"
+                and getattr(package, "to_code", None) in {"pt", "pt_br", "pt-BR", "pb"}
+            ]
+
+            if not candidates:
+                raise RuntimeError(
+                    "O catálogo do Argos Translate não apresentou um modelo "
+                    "inglês → português disponível."
+                )
+
+            priority = {"pt_br": 0, "pt-BR": 0, "pb": 0, "pt": 1}
+            candidates.sort(
+                key=lambda package: priority.get(
+                    getattr(package, "to_code", "pt"), 9
+                )
+            )
+            package = candidates[0]
+            download_path = package.download()
+
             if self._cancel_requested:
-                return
-            time.sleep(min(0.20, max(0.0, deadline - time.monotonic())))
+                return None
+
+            self.progress.emit(
+                4,
+                "Instalando o modelo local de tradução. Aguarde...",
+            )
+            argos_package.install_from_path(download_path)
+
+        except Exception as exc:
+            raise RuntimeError(
+                "Não foi possível baixar/instalar o modelo local de tradução. "
+                "Na primeira utilização é necessário estar conectado à internet. "
+                "Depois que o modelo for instalado, a tradução funcionará offline.\n\n"
+                f"Detalhe: {exc}"
+            ) from exc
+
+        translation = self._find_installed_translation(argos_translate)
+        if translation is None:
+            raise RuntimeError(
+                "O modelo foi instalado, mas o Argos Translate não conseguiu "
+                "ativar a tradução inglês → português."
+            )
+
+        _CACHED_TRANSLATION = translation
+        return translation
+
+    @staticmethod
+    def _find_installed_translation(argos_translate):
+        installed_languages = argos_translate.get_installed_languages()
+
+        source = next(
+            (language for language in installed_languages if language.code == "en"),
+            None,
+        )
+
+        targets = [
+            language
+            for language in installed_languages
+            if language.code in {"pt_br", "pt-BR", "pb", "pt"}
+        ]
+
+        if source is None or not targets:
+            return None
+
+        targets.sort(
+            key=lambda language: 0
+            if language.code in {"pt_br", "pt-BR", "pb"}
+            else 1
+        )
+
+        for target in targets:
+            try:
+                return source.get_translation(target)
+            except Exception:
+                continue
+
+        return None
+
+    @staticmethod
+    def _friendly_error(exc: Exception) -> str:
+        message = str(exc).strip()
+        lower = message.lower()
+
+        if "no module named" in lower or "not installed" in lower:
+            return (
+                "O componente de tradução local não foi instalado corretamente.\n\n"
+                f"Detalhe: {message}"
+            )
+
+        return message or exc.__class__.__name__
 
     def _choose_output_path(self) -> Path:
         video = Path(self.video_path)
