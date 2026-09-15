@@ -1,21 +1,21 @@
 {
-  "version": "0.4.7",
-  "notes": "V0.4.7: corrige a falha de integridade da V0.4.6 usando um arquivo novo e validado byte a byte. Mantém o modo Cores simultâneas, que colore ao mesmo tempo cada par inglês-português com a mesma cor.",
+  "version": "0.4.8",
+  "notes": "V0.4.8: elimina o atraso das cores simultâneas. O pareamento visual agora é calculado instantaneamente em memória, sem traduzir cada palavra no Argos antes de colorir.",
   "files": [
     {
-      "path": "english_player/v047_window.py",
-      "sha256": "8f0c6820964514e90e07f0d6d27b4965c9ded55a886a1e74276c87b491aaf417",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v047_window.py?v=0.4.7"
+      "path": "english_player/v048_window.py",
+      "sha256": "105c2483a6820487d7eff7b8388fb67042260af7a4ec0f39d89bf38a458d328f",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v048_window.py?v=0.4.8"
     },
     {
       "path": "main.py",
-      "sha256": "3afb5fd477451dfca35f690ec3e3c91c5869e9c018eb0cabfad92292af4cfff1",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.7"
+      "sha256": "136d38640a2a94f1d3c5d1430d9a07cb61ea9a8603ada5ed8105245bf249acad",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.4.8"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "3071b200859755ea2fb6d7965144b32eaf5419624b2e8a146425c1f4a1a934af",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.7"
+      "sha256": "e34f8f5193d121a909536c985907304d8bd2240ea27b0aa21bc5f2961c6e0109",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.4.8"
     }
   ],
   "delete": []
