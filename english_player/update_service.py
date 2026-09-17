@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import http.client
 import json
-import os
+import re
 import shutil
 import sys
 import time
@@ -17,9 +17,10 @@ from PySide6.QtCore import QThread, Signal
 
 from .data_paths import install_dir, updates_dir
 
-USER_AGENT = "EnglishVideoPlayer-Updater/1.1"
+USER_AGENT = "EnglishVideoPlayer-Updater/1.2"
 TRANSIENT_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
 RETRY_DELAYS = (1.0, 2.0, 4.0, 7.0)
+_COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 
 
 @dataclass
@@ -69,6 +70,25 @@ def _fresh_url(url: str, attempt: int) -> str:
     return f"{url}{separator}_evp_cache={stamp}_{attempt}"
 
 
+def _validate_file_url(url: str) -> None:
+    """Impede updates GitHub apontando para branches mutáveis como main/master."""
+    parsed = urllib.parse.urlparse(url)
+    if parsed.netloc.lower() != "raw.githubusercontent.com":
+        return
+
+    parts = [part for part in parsed.path.split("/") if part]
+    # /owner/repo/<ref>/arquivo
+    if len(parts) < 4:
+        raise ValueError("URL de atualização GitHub inválida.")
+
+    ref = parts[2]
+    if not _COMMIT_RE.fullmatch(ref):
+        raise ValueError(
+            "Manifesto inseguro: arquivos do GitHub precisam apontar para um "
+            "commit imutável de 40 caracteres, nunca para main/master."
+        )
+
+
 def fetch_bytes(url: str, timeout: int = 30, retries: int = 4) -> bytes:
     last_error = None
     attempts = max(1, int(retries) + 1)
@@ -88,12 +108,10 @@ def fetch_bytes(url: str, timeout: int = 30, retries: int = 4) -> bytes:
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 return response.read()
-
         except urllib.error.HTTPError as exc:
             last_error = exc
             if exc.code not in TRANSIENT_HTTP_CODES or attempt >= attempts - 1:
                 raise
-
         except (
             urllib.error.URLError,
             ConnectionResetError,
@@ -106,8 +124,7 @@ def fetch_bytes(url: str, timeout: int = 30, retries: int = 4) -> bytes:
             if attempt >= attempts - 1:
                 raise
 
-        delay = RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
-        time.sleep(delay)
+        time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
 
     if last_error is not None:
         raise last_error
@@ -145,6 +162,12 @@ def compare_manifest(manifest: dict, manifest_url: str) -> UpdateInfo:
         ):
             continue
 
+        url = str(
+            item.get("url")
+            or urllib.parse.urljoin(base_url, urllib.parse.quote(rel))
+        )
+        _validate_file_url(url)
+
         local = root / rel
         same = False
         if local.exists() and local.is_file():
@@ -154,10 +177,7 @@ def compare_manifest(manifest: dict, manifest_url: str) -> UpdateInfo:
                 same = False
 
         if not same:
-            url = item.get("url") or urllib.parse.urljoin(
-                base_url, urllib.parse.quote(rel)
-            )
-            files.append(UpdateFile(path=rel, sha256=expected, url=str(url)))
+            files.append(UpdateFile(path=rel, sha256=expected, url=url))
             if rel.replace("\\", "/") == "requirements.txt":
                 requirements_changed = True
 
@@ -190,18 +210,15 @@ class UpdateCheckWorker(QThread):
         try:
             manifest = fetch_manifest(self.manifest_url)
             info = compare_manifest(manifest, self.manifest_url)
-            payload = {
-                "info": info,
-                "is_newer": is_newer(info.version, self.current_version),
-                "current_version": self.current_version,
-            }
-            self.completed.emit(payload)
-        except urllib.error.HTTPError as exc:
-            self.failed.emit(
-                f"Servidor respondeu HTTP {exc.code}. "
-                "O programa tentou novamente automaticamente, mas o servidor "
-                "continuou indisponível."
+            self.completed.emit(
+                {
+                    "info": info,
+                    "is_newer": is_newer(info.version, self.current_version),
+                    "current_version": self.current_version,
+                }
             )
+        except urllib.error.HTTPError as exc:
+            self.failed.emit(f"Servidor respondeu HTTP {exc.code}.")
         except urllib.error.URLError as exc:
             self.failed.emit(
                 "Não foi possível acessar a fonte de atualização após várias "
@@ -220,8 +237,22 @@ class UpdateDownloadWorker(QThread):
         super().__init__(parent)
         self.info = info
 
+    def _refresh_info_before_download(self) -> None:
+        """Evita instalar dados antigos mantidos em memória na mesma sessão."""
+        try:
+            manifest = fetch_manifest(self.info.manifest_url)
+            fresh = compare_manifest(manifest, self.info.manifest_url)
+            if _version_tuple(fresh.version) >= _version_tuple(self.info.version):
+                self.info = fresh
+        except Exception:
+            # É seguro continuar com self.info porque seus URLs são imutáveis.
+            pass
+
     def run(self):
         try:
+            self.progress.emit(0, "Revalidando atualização...")
+            self._refresh_info_before_download()
+
             base = updates_dir() / f"v{self.info.version}"
             if base.exists():
                 shutil.rmtree(base, ignore_errors=True)
@@ -234,15 +265,12 @@ class UpdateDownloadWorker(QThread):
             for index, item in enumerate(self.info.files, start=1):
                 pct = int(((index - 1) / total) * 90)
                 self.progress.emit(pct, f"Baixando {item.path}...")
+                _validate_file_url(item.url)
 
                 data = fetch_bytes(item.url, timeout=60, retries=4)
                 actual = hashlib.sha256(data).hexdigest().lower()
 
                 if actual != item.sha256.lower():
-                    self.progress.emit(
-                        pct,
-                        f"Arquivo {item.path} veio diferente; baixando novamente...",
-                    )
                     data = fetch_bytes(item.url, timeout=60, retries=2)
                     actual = hashlib.sha256(data).hexdigest().lower()
 
@@ -275,17 +303,5 @@ class UpdateDownloadWorker(QThread):
             )
             self.progress.emit(100, "Atualização pronta para instalar.")
             self.completed.emit(str(plan_path))
-
-        except (
-            ConnectionResetError,
-            ConnectionAbortedError,
-            TimeoutError,
-            http.client.IncompleteRead,
-            OSError,
-        ) as exc:
-            self.failed.emit(
-                "A conexão com o servidor foi interrompida mesmo após várias "
-                f"tentativas automáticas. Detalhe: {exc}"
-            )
         except Exception as exc:
             self.failed.emit(str(exc))
