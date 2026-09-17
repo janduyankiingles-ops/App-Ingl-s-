@@ -2,7 +2,7 @@ import html
 import re
 
 from PySide6.QtCore import Qt, QUrl, Signal
-from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PySide6.QtMultimedia import QAudioOutput, QMediaMetaData, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import (
     QWidget,
@@ -102,12 +102,22 @@ class PlayerWidget(QWidget):
             self.speed_combo.addItem(f"{speed:g}x", speed)
         self.speed_combo.setCurrentIndex(1)
 
+        self.audio_track_combo = QComboBox()
+        self.audio_track_combo.setMinimumWidth(150)
+        self.audio_track_combo.setToolTip(
+            "Troca a faixa de áudio interna do vídeo, quando houver mais de uma."
+        )
+        self.audio_track_combo.addItem("Áudio padrão", -1)
+        self.audio_track_combo.setEnabled(False)
+
         controls = QHBoxLayout()
         controls.addWidget(self.play_button)
         controls.addWidget(self.back_button)
         controls.addWidget(self.forward_button)
         controls.addWidget(self.position_slider, 1)
         controls.addWidget(self.time_label)
+        controls.addWidget(QLabel("🔊"))
+        controls.addWidget(self.audio_track_combo)
         controls.addWidget(self.speed_combo)
 
         layout = QVBoxLayout(self)
@@ -121,12 +131,21 @@ class PlayerWidget(QWidget):
         self.forward_button.clicked.connect(lambda: self.seek_relative(5000))
         self.position_slider.sliderMoved.connect(self.player.setPosition)
         self.speed_combo.currentIndexChanged.connect(self._set_speed)
+        self.audio_track_combo.currentIndexChanged.connect(
+            self._set_audio_track
+        )
 
         self.player.positionChanged.connect(self._position_changed)
         self.player.durationChanged.connect(self._duration_changed)
         self.player.playbackStateChanged.connect(self._state_changed)
+        self.player.tracksChanged.connect(self._refresh_audio_tracks)
 
     def set_video(self, path: str):
+        self.audio_track_combo.blockSignals(True)
+        self.audio_track_combo.clear()
+        self.audio_track_combo.addItem("Carregando áudio...", -1)
+        self.audio_track_combo.setEnabled(False)
+        self.audio_track_combo.blockSignals(False)
         self.player.setSource(QUrl.fromLocalFile(path))
         self.player.setPosition(0)
 
@@ -199,6 +218,79 @@ class PlayerWidget(QWidget):
 
         self.subtitle_pt.setText("".join(parts))
 
+    @staticmethod
+    def _audio_track_label(metadata, index: int) -> str:
+        parts = []
+        try:
+            language = str(
+                metadata.stringValue(QMediaMetaData.Key.Language) or ""
+            ).strip()
+            if language:
+                parts.append(language)
+        except Exception:
+            pass
+
+        try:
+            title = str(
+                metadata.stringValue(QMediaMetaData.Key.Title) or ""
+            ).strip()
+            if title and title.lower() not in {
+                part.lower() for part in parts
+            }:
+                parts.append(title)
+        except Exception:
+            pass
+
+        suffix = " — " + " / ".join(parts) if parts else ""
+        return f"Faixa {index + 1}{suffix}"
+
+    def _refresh_audio_tracks(self):
+        try:
+            tracks = list(self.player.audioTracks())
+        except Exception:
+            tracks = []
+
+        try:
+            active = int(self.player.activeAudioTrack())
+        except Exception:
+            active = -1
+
+        self.audio_track_combo.blockSignals(True)
+        self.audio_track_combo.clear()
+
+        if not tracks:
+            self.audio_track_combo.addItem("Áudio único/padrão", -1)
+            self.audio_track_combo.setEnabled(False)
+            self.audio_track_combo.blockSignals(False)
+            return
+
+        for index, metadata in enumerate(tracks):
+            self.audio_track_combo.addItem(
+                self._audio_track_label(metadata, index),
+                index,
+            )
+
+        combo_index = self.audio_track_combo.findData(active)
+        if combo_index < 0:
+            combo_index = 0
+        self.audio_track_combo.setCurrentIndex(combo_index)
+        self.audio_track_combo.setEnabled(len(tracks) > 1)
+        self.audio_track_combo.blockSignals(False)
+
+    def _set_audio_track(self):
+        track = self.audio_track_combo.currentData()
+        try:
+            track_index = int(track)
+        except (TypeError, ValueError):
+            return
+        if track_index < 0:
+            return
+
+        try:
+            if self.player.activeAudioTrack() != track_index:
+                self.player.setActiveAudioTrack(track_index)
+        except Exception:
+            pass
     def _set_speed(self):
         speed = float(self.speed_combo.currentData())
         self.player.setPlaybackRate(speed)
