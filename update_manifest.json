@@ -1,23 +1,28 @@
 {
-  "version": "0.9.1",
+  "version": "0.9.2",
   "manifest_format": 2,
-  "source_commit": "3cd946cd4065914af0c1a8b6baaccf9ebb25adc6",
-  "notes": "V0.9.1: corrige o botão Ver trecho do Quiz para não revelar a resposta. Durante o loop do Quiz, as legendas EN e PT ficam temporariamente ocultas e voltam automaticamente ao sair do loop. A Revisão e o modo Escuta continuam exibindo legendas normalmente.",
+  "source_commit": "f4249887c496f3bed8b67eae472b516de8ff9fb1",
+  "notes": "V0.9.2: separa completamente os players de estudo. Quiz, Revisão e Escuta/Shadowing passam a ter players próprios dentro de suas respectivas abas. Ver trecho no Quiz não muda mais para o player principal e nunca exibe legendas; o player principal mantém vídeo e posição. Revisão e Escuta também reproduzem seus trechos sem interferir no player principal.",
   "files": [
     {
-      "path": "english_player/v091_window.py",
-      "sha256": "bfcf62b04ccc2315c4c9869784795debc62c9b3d7e50043f11aa6aa8ed897d8a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/3cd946cd4065914af0c1a8b6baaccf9ebb25adc6/english_player/v091_window.py"
+      "path": "english_player/clip_player.py",
+      "sha256": "21e9bab32fa727634068a029373a2a9d70d7c1667b953d3ee5de083840553320",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/f4249887c496f3bed8b67eae472b516de8ff9fb1/english_player/clip_player.py"
+    },
+    {
+      "path": "english_player/v092_window.py",
+      "sha256": "11cb3a94f84e32f0bd091060ef2e0dc270263b6003d0c10e37b79cd98aad4853",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/f4249887c496f3bed8b67eae472b516de8ff9fb1/english_player/v092_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "d86f02b18faf85397a1d3f54b5c6732928980f943a5de80855983ebce26d340c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/3cd946cd4065914af0c1a8b6baaccf9ebb25adc6/main.py"
+      "sha256": "d5f364253545313deb6809ddfcd9ce0b39978aed6cbdb838b8c34caf9dec35c3",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/f4249887c496f3bed8b67eae472b516de8ff9fb1/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "53025733c258d93ded13689dd0ada4fe511a55385b453ac63b598d89bcb3233f",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/3cd946cd4065914af0c1a8b6baaccf9ebb25adc6/english_player/__init__.py"
+      "sha256": "82a4fe046a1e108b5d6bd7c80900ef2dbc448d6448061149c4fc712af9872d4a",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/f4249887c496f3bed8b67eae472b516de8ff9fb1/english_player/__init__.py"
     }
   ],
   "delete": []
