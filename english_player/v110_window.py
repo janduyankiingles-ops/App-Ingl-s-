@@ -175,9 +175,14 @@ class MainWindowV110(MainWindowV100):
             f"🔥 {plan['streak']} dias  •  recorde {plan['best_streak']}"
         )
 
-        active = max(1, int(plan["active_steps"]))
+        active_steps = int(plan["active_steps"])
+        active = max(1, active_steps)
         completed = int(plan["completed_steps"])
-        overall = max(0, min(100, round((completed / active) * 100)))
+        overall = (
+            100
+            if plan["all_done"]
+            else max(0, min(100, round((completed / active) * 100)))
+        )
         self.today_overall_bar.setValue(overall)
         self.today_overall_bar.setFormat(
             f"{completed}/{plan['active_steps']} etapas concluídas  •  {overall}%"
@@ -205,6 +210,7 @@ class MainWindowV110(MainWindowV100):
             row["detail"].setText(
                 f"{step.done}/{step.target}"
                 + (f" • faltam {step.remaining}" if step.remaining else " • concluído")
+                + (f" • ~{step.minutes} min" if step.remaining and step.minutes else "")
                 + f"\n{step.note}"
             )
             percent = self._percent(step.done, step.target)
