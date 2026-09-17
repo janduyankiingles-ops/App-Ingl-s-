@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtWidgets import QLabel, QMessageBox
+from PySide6.QtWidgets import QMessageBox
 
 from .clip_player import ClipPlayerWidget
-from .v091_window import MainWindowV091
+from .v090_window import MainWindowV090
 
 
-class MainWindowV092(MainWindowV091):
-    """V0.9.2: cada modo usa seu próprio player de trecho."""
+class MainWindowV092(MainWindowV090):
+    """V0.9.3: players independentes sem depender da V0.9.1."""
 
     def __init__(self):
         self.review_clip_player = None
@@ -20,7 +20,6 @@ class MainWindowV092(MainWindowV091):
     def _build_ui(self):
         super()._build_ui()
 
-        # Revisão: o vídeo fica dentro do próprio cartão.
         self.review_clip_player = ClipPlayerWidget(
             self.review_card_group,
             minimum_height=210,
@@ -33,7 +32,6 @@ class MainWindowV092(MainWindowV091):
         )
         self.review_scene_button.setText("▶ Ver trecho aqui")
 
-        # Escuta: player sem legenda dentro da própria aba.
         listening_group = self.listening_input.parentWidget()
         self.listening_clip_player = ClipPlayerWidget(
             listening_group,
@@ -44,7 +42,6 @@ class MainWindowV092(MainWindowV091):
         listening_layout.insertWidget(1, self.listening_clip_player)
         self.listening_play_button.setText("▶ Ouvir/ver trecho aqui")
 
-        # Quiz: player sem legenda dentro da própria questão.
         quiz_group = self.quiz_prompt.parentWidget()
         self.quiz_clip_player = ClipPlayerWidget(
             quiz_group,
@@ -55,16 +52,15 @@ class MainWindowV092(MainWindowV091):
         quiz_layout.insertWidget(3, self.quiz_clip_player)
         self.quiz_scene_button.setText("▶ Ver trecho aqui (sem legenda)")
         self.quiz_scene_button.setToolTip(
-            "Abre o vídeo dentro do Quiz, sem legenda, sem mudar para o player principal."
+            "Abre o vídeo dentro do Quiz, sem legenda e sem alterar o player principal."
         )
 
-        # O botão antigo do loop principal deixa de fazer parte desses modos.
         if hasattr(self, "loop_stop_button"):
             self.loop_stop_button.setVisible(False)
 
         self.generator_hint.setText(
             self.generator_hint.text()
-            + " A V0.9.2 separa os players de Revisão, Escuta e Quiz."
+            + " A V0.9.3 mantém Revisão, Escuta e Quiz com players independentes."
         )
 
     def _pause_main_player(self):
@@ -110,8 +106,6 @@ class MainWindowV092(MainWindowV091):
     # ---------------- Escuta / Shadowing ----------------
 
     def _on_listening_position(self, _position: int):
-        # A V0.8 conectava esse método ao player principal.
-        # Na V0.9.2 o player principal não controla o exercício.
         return
 
     def _play_listening_once(self):
@@ -207,13 +201,6 @@ class MainWindowV092(MainWindowV091):
         if self.quiz_clip_player is not None:
             self.quiz_clip_player.clear()
         super()._next_quiz_question()
-
-    # O loop antigo do player principal continua disponível apenas para
-    # compatibilidade interna, mas não é usado pelos três módulos acima.
-    def _set_quiz_subtitles_hidden(self, hidden: bool):
-        # A V0.9.1 escondia a legenda do player principal.
-        # Agora o Quiz tem um player próprio sem legenda.
-        self._quiz_clip_hidden = False
 
     def open_video(self):
         for player in (
