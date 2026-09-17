@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import html
-import re
 
 from PySide6.QtCore import QTimer, QUrl
 from PySide6.QtWidgets import (
@@ -24,7 +23,7 @@ from .v054_window import MainWindowV054
 
 
 class MainWindowV055(MainWindowV054):
-    """V0.5.5: dicionário e voz neural totalmente locais após instalação inicial."""
+    """V0.5.6: dicionário e voz neural locais, sem SQLite compartilhado."""
 
     def __init__(self):
         self._offline_pack_worker: OfflinePackInstaller | None = None
@@ -55,9 +54,8 @@ class MainWindowV055(MainWindowV054):
 
         self.generator_hint.setText(
             self.generator_hint.text()
-            + " A V0.5.5 permite instalar um pacote local com FreeDict, "
-              "Open English WordNet e voz neural Piper. Depois disso, o dicionário "
-              "e a pronúncia não precisam de internet."
+            + " O pacote offline usa FreeDict, WordNet local (NLTK) e voz neural Piper. "
+              "Depois da instalação, dicionário e pronúncia funcionam sem internet."
         )
 
     def _refresh_offline_status(self):
@@ -67,11 +65,15 @@ class MainWindowV055(MainWindowV054):
             + offline_status_text()
         )
         self.offline_pack_button.setText(
-            "✓ Pacote offline instalado" if ready else "📦 Instalar pacote offline (~80 MB)"
+            "✓ Pacote offline instalado"
+            if ready
+            else "📦 Instalar/continuar pacote offline"
         )
         self.offline_pack_button.setEnabled(
-            not ready and not (
-                self._offline_pack_worker and self._offline_pack_worker.isRunning()
+            not ready
+            and not (
+                self._offline_pack_worker
+                and self._offline_pack_worker.isRunning()
             )
         )
 
@@ -85,13 +87,12 @@ class MainWindowV055(MainWindowV054):
         answer = QMessageBox.question(
             self,
             "Instalar pacote offline",
-            "O programa vai baixar uma única vez:\n\n"
+            "O programa vai instalar somente o que ainda estiver faltando:\n\n"
             "• dicionário inglês → português (FreeDict);\n"
-            "• Open English WordNet 2025 para definições e exemplos;\n"
+            "• WordNet local para definições e exemplos;\n"
             "• voz neural inglesa Piper Lessac (~63 MB).\n\n"
-            "Depois da instalação, as consultas e a pronúncia funcionam localmente, "
-            "sem depender de serviços online.\n\n"
-            "Deseja instalar agora?",
+            "O que já foi instalado será reaproveitado. Depois, as consultas e "
+            "a pronúncia funcionam localmente.\n\nDeseja continuar?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes,
         )
@@ -146,8 +147,6 @@ class MainWindowV055(MainWindowV054):
         self._refresh_offline_status()
 
     def _on_word_clicked_detailed(self, word: str, english_word_index: int):
-        # Mantém apenas o comportamento visual das cores; não chama o dicionário
-        # online herdado da V0.5.
         MainWindowV048._on_word_clicked_detailed(
             self, word, english_word_index
         )
@@ -178,21 +177,18 @@ class MainWindowV055(MainWindowV054):
 
         if not offline_pack_ready():
             self.dictionary_status_label.setText(
-                "Pacote offline ainda não instalado."
+                "Pacote offline ainda não está completo."
             )
             self.dictionary_browser.setHtml(
-                "<p><b>Instale o pacote offline acima.</b></p>"
-                "<p>Depois disso, definição, exemplos e pronúncia serão locais "
-                "e não dependerão da internet.</p>"
+                "<p><b>Clique em ‘Instalar/continuar pacote offline’.</b></p>"
+                "<p>O programa reaproveitará o que já foi baixado.</p>"
             )
             self.pronunciation_button.setEnabled(False)
             return
 
-        self.dictionary_status_label.setText(
-            "Consultando dicionário local..."
-        )
+        self.dictionary_status_label.setText("Consultando dicionário local...")
         self.dictionary_browser.setHtml(
-            "<p style='color:#888;'>Buscando no banco local...</p>"
+            "<p style='color:#888;'>Buscando localmente...</p>"
         )
         self.pronunciation_button.setEnabled(True)
         self.pronunciation_button.setToolTip(
@@ -231,9 +227,7 @@ class MainWindowV055(MainWindowV054):
         context = result.context_translation or (
             result.translations[0] if result.translations else "—"
         )
-        self.context_translation_label.setText(
-            f"Neste contexto: {context}"
-        )
+        self.context_translation_label.setText(f"Neste contexto: {context}")
 
         info = []
         if result.phonetic:
@@ -261,8 +255,7 @@ class MainWindowV055(MainWindowV054):
             )
         if result.example_en:
             blocks.append(
-                "<b>Exemplo</b><br>"
-                + html.escape(result.example_en)
+                "<b>Exemplo</b><br>" + html.escape(result.example_en)
             )
         if result.synonyms:
             blocks.append(
@@ -271,7 +264,7 @@ class MainWindowV055(MainWindowV054):
             )
         blocks.append(
             "<span style='color:#888;'>"
-            "Fonte local: FreeDict + Open English WordNet 2025."
+            "Fonte local: FreeDict + WordNet (NLTK)."
             "</span>"
         )
         self.dictionary_browser.setHtml(
@@ -295,7 +288,7 @@ class MainWindowV055(MainWindowV054):
             QMessageBox.information(
                 self,
                 "Pacote offline",
-                "Instale o pacote offline antes de usar a voz neural.",
+                "Conclua a instalação do pacote offline antes de usar a voz neural.",
             )
             return
 
@@ -331,7 +324,6 @@ class MainWindowV055(MainWindowV054):
         self._piper_worker = None
 
     def _clear_selection(self):
-        # Evita que a versão anterior inicie/limpe estado de áudio remoto.
         super()._clear_selection()
         self._offline_generation += 1
 

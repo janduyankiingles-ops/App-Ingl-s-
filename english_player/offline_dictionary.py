@@ -7,7 +7,12 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QThread, Signal
 
-from .offline_resources import FREEDICT_DB, configure_wn, offline_pack_ready
+from .offline_resources import (
+    FREEDICT_DB,
+    WORDNET_DIR,
+    configure_nltk,
+    offline_pack_ready,
+)
 
 
 _CACHE: dict[tuple[str, str], object] = {}
@@ -93,6 +98,8 @@ def _lookup_candidates(word: str) -> list[str]:
 def _freedict(word: str) -> tuple[list[str], str, str]:
     if not FREEDICT_DB.exists():
         return [], "", word
+
+    # Conexão curta e exclusiva da thread atual.
     with sqlite3.connect(FREEDICT_DB) as db:
         for candidate in _lookup_candidates(word):
             rows = db.execute(
@@ -101,11 +108,19 @@ def _freedict(word: str) -> tuple[list[str], str, str]:
                 (candidate,),
             ).fetchall()
             if rows:
-                translations = list(dict.fromkeys(
-                    str(row[0]).strip() for row in rows if str(row[0]).strip()
-                ))
+                translations = list(
+                    dict.fromkeys(
+                        str(row[0]).strip()
+                        for row in rows
+                        if str(row[0]).strip()
+                    )
+                )
                 pos = next(
-                    (str(row[1]).strip() for row in rows if str(row[1]).strip()),
+                    (
+                        str(row[1]).strip()
+                        for row in rows
+                        if str(row[1]).strip()
+                    ),
                     "",
                 )
                 return translations[:12], pos, candidate
@@ -149,8 +164,7 @@ def _ipa(word: str) -> str:
         if _CMU is None:
             import cmudict
             _CMU = cmudict.dict()
-        key = _normalize(word)
-        pronunciations = _CMU.get(key) or []
+        pronunciations = _CMU.get(_normalize(word)) or []
         if pronunciations:
             return _arpabet_to_ipa(pronunciations[0])
     except Exception:
@@ -159,8 +173,9 @@ def _ipa(word: str) -> str:
 
 
 def _wordnet(word: str, sentence: str):
-    wn = configure_wn()
-    lex = wn.Wordnet("oewn:2025")
+    configure_nltk()
+    from nltk.corpus import wordnet as wn
+
     context = _tokens(sentence)
     best = None
     best_score = -10_000.0
@@ -168,39 +183,43 @@ def _wordnet(word: str, sentence: str):
 
     for candidate in _lookup_candidates(word):
         try:
-            synsets = lex.synsets(candidate)
-        except Exception:
+            synsets = wn.synsets(candidate)
+        except LookupError:
             synsets = []
         if not synsets:
             continue
+
         lookup = candidate
         for order, synset in enumerate(synsets[:18]):
             definition = synset.definition() or ""
             examples = list(synset.examples() or [])
-            lemmas = []
-            try:
-                lemmas = [w.lemma() for w in synset.words()]
-            except Exception:
-                pass
+            lemmas = [lemma.name().replace("_", " ") for lemma in synset.lemmas()]
             candidate_tokens = _tokens(
-                definition + " " + " ".join(examples[:2]) + " " + " ".join(lemmas)
+                definition
+                + " "
+                + " ".join(examples[:2])
+                + " "
+                + " ".join(lemmas)
             )
             score = len(context & candidate_tokens) * 4.0 - order * 0.06
-            pos = str(getattr(synset, "pos", "") or "")
+            pos = str(synset.pos() or "")
             if candidate.endswith("ing") and pos == "v":
                 score += 1.0
             if candidate.endswith("ly") and pos == "r":
                 score += 1.0
             if score > best_score:
                 best_score = score
-                best = (synset, definition, examples, lemmas, pos)
+                best = (definition, examples, lemmas, pos)
         break
 
     if best is None:
         return lookup, "", "", [], "", ""
 
-    synset, definition, examples, lemmas, pos = best
-    synonyms = [x for x in lemmas if _normalize(x) != _normalize(lookup)]
+    definition, examples, lemmas, pos = best
+    synonyms = [
+        value for value in lemmas
+        if _normalize(value) != _normalize(lookup)
+    ]
     synonyms = list(dict.fromkeys(synonyms))[:8]
     example = examples[0] if examples else ""
     return lookup, definition, example, synonyms, pos, POS_PT.get(pos, pos)
@@ -227,9 +246,7 @@ class OfflineDictionaryWorker(QThread):
     def run(self):
         try:
             if not offline_pack_ready():
-                raise RuntimeError(
-                    "O pacote offline ainda não está instalado."
-                )
+                raise RuntimeError("O pacote offline ainda não está instalado.")
 
             key = (_normalize(self.word), self.sentence_en)
             cached = _CACHE.get(key)
