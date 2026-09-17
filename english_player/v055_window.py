@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import re
 
 from PySide6.QtCore import QTimer, QUrl
 from PySide6.QtWidgets import (
@@ -145,6 +146,8 @@ class MainWindowV055(MainWindowV054):
         self._refresh_offline_status()
 
     def _on_word_clicked_detailed(self, word: str, english_word_index: int):
+        # Mantém apenas o comportamento visual das cores; não chama o dicionário
+        # online herdado da V0.5.
         MainWindowV048._on_word_clicked_detailed(
             self, word, english_word_index
         )
@@ -328,6 +331,7 @@ class MainWindowV055(MainWindowV054):
         self._piper_worker = None
 
     def _clear_selection(self):
+        # Evita que a versão anterior inicie/limpe estado de áudio remoto.
         super()._clear_selection()
         self._offline_generation += 1
 
