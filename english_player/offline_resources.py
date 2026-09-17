@@ -186,6 +186,7 @@ def _build_freedict_db(xml_path: Path, db_path: Path) -> int:
                     if value:
                         translations.append(value)
 
+            # FreeDict TEI normally stores translations inside <cit type="trans"><quote>.
             if not translations:
                 for sense in elem.iter():
                     if _local_name(sense.tag) != "sense":
