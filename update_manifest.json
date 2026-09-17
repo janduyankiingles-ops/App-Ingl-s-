@@ -1,38 +1,28 @@
 {
-  "version": "0.5.6",
+  "version": "0.6.0",
   "manifest_format": 2,
-  "source_commit": "e789a5da33b096353cb16143b7320c412dfe6405",
-  "notes": "V0.5.6: corrige o erro SQLite objects created in a thread. O WordNet deixa de usar a biblioteca wn/SQLite compartilhado e passa a usar NLTK WordNet local, sem conexão SQLite entre threads. Reaproveita downloads já concluídos e mantém FreeDict + voz neural Piper offline.",
+  "source_commit": "4662da646cd0856b5067be64336756f65f0da04d",
+  "notes": "V0.6.0: adiciona reconhecimento offline de phrasal verbs e expressões. O app identifica automaticamente expressões na legenda atual, mostra tradução e significado do conjunto, reconhece formas flexionadas como gave up → give up e phrasal verbs separáveis como turn the TV off → turn off, além de permitir pronunciar a expressão inteira com Piper.",
   "files": [
     {
-      "path": "english_player/offline_resources.py",
-      "sha256": "608edde2dd72f371fa51535bed1dcea366f3e1b21c0e1b25935a5c9413b2dc7a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/offline_resources.py"
+      "path": "english_player/phrase_dictionary.py",
+      "sha256": "509884cd3454be42776f527378695000c1e92a0f4d93dac27b6ac158ec31de39",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/4662da646cd0856b5067be64336756f65f0da04d/english_player/phrase_dictionary.py"
     },
     {
-      "path": "english_player/offline_dictionary.py",
-      "sha256": "757571cc715a9180fbac93d806b6d45e10153386e21ccb4ff5725ce816191230",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/offline_dictionary.py"
-    },
-    {
-      "path": "english_player/v056_window.py",
-      "sha256": "32fa17985676dda23ce725ed2fa7743364a3e87528ec5b08edc683ebee65421a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/v056_window.py"
+      "path": "english_player/v060_window.py",
+      "sha256": "cab6f2d1f32f617b8fbafca182e70cc73a7646d5937163815f9d586a78d59907",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/4662da646cd0856b5067be64336756f65f0da04d/english_player/v060_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "4aa2cda406496ce86bba0a8f2bfa02eb686d999d801144065ced0be01f92290c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/main.py"
+      "sha256": "da35780e57b71aea7748769529fe3cc4eedf2f493ff4c846043490a4a128e2b2",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/4662da646cd0856b5067be64336756f65f0da04d/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "08c1f7e06b7502a3bbcff4ea463f785f0a211a85427fc69eb3476392a9b8e669",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/__init__.py"
-    },
-    {
-      "path": "requirements.txt",
-      "sha256": "a022de93e0598053242bd61829917b479ad0dd679d97633659061e9d67111b39",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/requirements.txt"
+      "sha256": "7080f58cb9c2fef8f8f0680c37a61bd4503726c43de73366087991604f131616",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/4662da646cd0856b5067be64336756f65f0da04d/english_player/__init__.py"
     }
   ],
   "delete": []
