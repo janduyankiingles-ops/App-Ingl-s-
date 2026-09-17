@@ -1,28 +1,28 @@
 {
   "version": "0.7.0",
   "manifest_format": 2,
-  "source_commit": "16cd04615b6cd419739ed46f9bf7af6ee210f8d8",
+  "source_commit": "25a88efe1ff81bc023c5c7856e2a5c70b9d08b8f",
   "notes": "V0.7.0: adiciona revisão inteligente do vocabulário salvo com repetição espaçada. Cria a aba Revisão, migra automaticamente o vocabulário existente, preserva a tradução contextual quando disponível, permite ouvir a palavra/expressão com Piper e voltar ao trecho original do vídeo. As respostas Errei, Difícil, Bom e Fácil ajustam o próximo intervalo de revisão.",
   "files": [
     {
       "path": "english_player/review_system.py",
       "sha256": "33bbbb2d896d3f24952ebf6685c64184baab6c60263d53ddbaba70c8a5d6263a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/review_system.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/25a88efe1ff81bc023c5c7856e2a5c70b9d08b8f/english_player/review_system.py"
     },
     {
       "path": "english_player/v070_window.py",
       "sha256": "fb7b0003d6bf0dbe2a5e94d72cad3d24a44af8887c95ef5ca06bd0d1321ee5d0",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/v070_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/25a88efe1ff81bc023c5c7856e2a5c70b9d08b8f/english_player/v070_window.py"
     },
     {
       "path": "main.py",
       "sha256": "b7739604172c32f3f0732e6795840bc6ac9209fbf207df3dce9e5fa083f53f26",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/main.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/25a88efe1ff81bc023c5c7856e2a5c70b9d08b8f/main.py"
     },
     {
       "path": "english_player/__init__.py",
       "sha256": "45a00d19b46ee5efaf7a1c17235f907b68203cf7ecd5341a663d3bd8975b2e4e",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/__init__.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/25a88efe1ff81bc023c5c7856e2a5c70b9d08b8f/english_player/__init__.py"
     }
   ],
   "delete": []
