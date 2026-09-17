@@ -1,33 +1,28 @@
 {
-  "version": "0.6.1",
+  "version": "0.7.0",
   "manifest_format": 2,
-  "source_commit": "62a45e0b06a337f33b9b0c11c55833cc55738287",
-  "notes": "V0.6.1: adiciona dicionário offline expandido. O app pode baixar uma base maior derivada do Wikcionário português/Kaikki, filtrar as entradas em inglês para um SQLite local e instalar Open Multilingual WordNet. As consultas passam a combinar Kaikki, OMW, FreeDict, WordNet e Argos local como fallback, com melhor cobertura de traduções, formas flexionadas e significados em português.",
+  "source_commit": "16cd04615b6cd419739ed46f9bf7af6ee210f8d8",
+  "notes": "V0.7.0: adiciona revisão inteligente do vocabulário salvo com repetição espaçada. Cria a aba Revisão, migra automaticamente o vocabulário existente, preserva a tradução contextual quando disponível, permite ouvir a palavra/expressão com Piper e voltar ao trecho original do vídeo. As respostas Errei, Difícil, Bom e Fácil ajustam o próximo intervalo de revisão.",
   "files": [
     {
-      "path": "english_player/expanded_dictionary.py",
-      "sha256": "0457c4a44b88b37b86d28ded08bd608971e562bfc743f69fa12e19f79d5e14e3",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/62a45e0b06a337f33b9b0c11c55833cc55738287/english_player/expanded_dictionary.py"
+      "path": "english_player/review_system.py",
+      "sha256": "33bbbb2d896d3f24952ebf6685c64184baab6c60263d53ddbaba70c8a5d6263a",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/review_system.py"
     },
     {
-      "path": "english_player/offline_dictionary.py",
-      "sha256": "ba8e8eeeb5a4a52fa053b6db5fb1d51f3bf33d8f77a0db8a47fcd0adeea75ec0",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/62a45e0b06a337f33b9b0c11c55833cc55738287/english_player/offline_dictionary.py"
-    },
-    {
-      "path": "english_player/v061_window.py",
-      "sha256": "37eccc3e991b55ed63f81c3b93859cc5b19ad2de0da91e2115286ad2b05bbf94",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/62a45e0b06a337f33b9b0c11c55833cc55738287/english_player/v061_window.py"
+      "path": "english_player/v070_window.py",
+      "sha256": "fb7b0003d6bf0dbe2a5e94d72cad3d24a44af8887c95ef5ca06bd0d1321ee5d0",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/v070_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "a21dfccc590e778d6aceea41f8b2e90b533df9673f873727abec749ebf19d175",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/62a45e0b06a337f33b9b0c11c55833cc55738287/main.py"
+      "sha256": "b7739604172c32f3f0732e6795840bc6ac9209fbf207df3dce9e5fa083f53f26",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "6da01c1232d260521e359179d6d38c980ff300c84df07bca69e97e514f91b9e7",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/62a45e0b06a337f33b9b0c11c55833cc55738287/english_player/__init__.py"
+      "sha256": "45a00d19b46ee5efaf7a1c17235f907b68203cf7ecd5341a663d3bd8975b2e4e",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/16cd04615b6cd419739ed46f9bf7af6ee210f8d8/english_player/__init__.py"
     }
   ],
   "delete": []
