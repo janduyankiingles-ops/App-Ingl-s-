@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import threading
 import wave
+from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
