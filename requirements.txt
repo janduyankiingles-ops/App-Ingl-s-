@@ -1,3 +1,6 @@
 PySide6>=6.8,<7
 faster-whisper==1.2.1
 argostranslate>=1.9.6,<2
+wn>=1.1,<2
+piper-tts==1.8.0
+cmudict==1.1.3
