@@ -211,6 +211,7 @@ class MainWindowV122(MainWindowV121):
             return 0
 
         existing = self.series_store.list_episodes(series, season)
+        existing_by_path = {str(ep.path): ep for ep in existing}
         used_numbers = {int(ep.episode_number) for ep in existing}
         next_number = self.series_store.next_episode_number(series, season)
 
@@ -220,7 +221,9 @@ class MainWindowV122(MainWindowV121):
                 Path(path).name
             )
 
-            if (
+            if path in existing_by_path:
+                episode_number = int(existing_by_path[path].episode_number)
+            elif (
                 parsed_episode is not None
                 and int(parsed_episode) not in used_numbers
             ):
