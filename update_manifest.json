@@ -1,43 +1,38 @@
 {
-  "version": "0.5.5",
+  "version": "0.5.6",
   "manifest_format": 2,
-  "source_commit": "c337b76cab312b724a9a84744996fe4cee3817ff",
-  "notes": "V0.5.5: substitui o dicionário contextual online por um pacote offline opcional. Instala FreeDict EN→PT, Open English WordNet 2025 e voz neural Piper Lessac. Após a instalação inicial, significado, definições, exemplos, IPA e pronúncia funcionam localmente e com resposta muito mais rápida.",
+  "source_commit": "e789a5da33b096353cb16143b7320c412dfe6405",
+  "notes": "V0.5.6: corrige o erro SQLite objects created in a thread. O WordNet deixa de usar a biblioteca wn/SQLite compartilhado e passa a usar NLTK WordNet local, sem conexão SQLite entre threads. Reaproveita downloads já concluídos e mantém FreeDict + voz neural Piper offline.",
   "files": [
     {
       "path": "english_player/offline_resources.py",
-      "sha256": "748d940d89d8a1f798014d5f4e23e14a62d534a79576fab6cdfdfb41f373d97f",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/english_player/offline_resources.py"
+      "sha256": "608edde2dd72f371fa51535bed1dcea366f3e1b21c0e1b25935a5c9413b2dc7a",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/offline_resources.py"
     },
     {
       "path": "english_player/offline_dictionary.py",
-      "sha256": "44c4bff632ea2090c9ea639b1061d86d560339a0c59adb5021093c6570ef1dc9",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/english_player/offline_dictionary.py"
+      "sha256": "757571cc715a9180fbac93d806b6d45e10153386e21ccb4ff5725ce816191230",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/offline_dictionary.py"
     },
     {
-      "path": "english_player/piper_tts_worker.py",
-      "sha256": "783d7da7be329dd6e69634c65858550d4348274b0424e2a1a256ade42bb802cf",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/english_player/piper_tts_worker.py"
-    },
-    {
-      "path": "english_player/v055_window.py",
-      "sha256": "f7dd2fdfc365264f4de19c0df6089e4a4a19414604c102d1c2db4c5f85df0616",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/english_player/v055_window.py"
+      "path": "english_player/v056_window.py",
+      "sha256": "32fa17985676dda23ce725ed2fa7743364a3e87528ec5b08edc683ebee65421a",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/v056_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "369ee0f85fefbb2e9fe66a41554bfd5d7ff9b1b54bf282d94a0889518f4e8d0a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/main.py"
+      "sha256": "4aa2cda406496ce86bba0a8f2bfa02eb686d999d801144065ced0be01f92290c",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "efc99fa4b7b0295922e9cf5438d4947655667bf26c37d67021fa781dfe23986d",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/english_player/__init__.py"
+      "sha256": "08c1f7e06b7502a3bbcff4ea463f785f0a211a85427fc69eb3476392a9b8e669",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/english_player/__init__.py"
     },
     {
       "path": "requirements.txt",
-      "sha256": "96670c8c15a80ef8f611da7056706938f940fe6bdb0dffe75e96b4ba47ed8916",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/c337b76cab312b724a9a84744996fe4cee3817ff/requirements.txt"
+      "sha256": "a022de93e0598053242bd61829917b479ad0dd679d97633659061e9d67111b39",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/e789a5da33b096353cb16143b7320c412dfe6405/requirements.txt"
     }
   ],
   "delete": []
