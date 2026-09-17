@@ -31,6 +31,7 @@ class MainWindowV060(MainWindowV056):
         )
 
         layout = self.dictionary_group.layout()
+        # Fica logo abaixo do status do pacote offline.
         layout.insertWidget(2, self.phrase_hint_label)
 
         self.generator_hint.setText(
@@ -80,6 +81,8 @@ class MainWindowV060(MainWindowV056):
             super()._on_word_clicked_detailed(word, english_word_index)
             return
 
+        # Mantém o comportamento visual das cores simultâneas, mas não inicia
+        # a consulta de palavra isolada da V0.5.6.
         MainWindowV048._on_word_clicked_detailed(
             self, word, english_word_index
         )
