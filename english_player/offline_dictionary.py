@@ -3,19 +3,23 @@ from __future__ import annotations
 import re
 import sqlite3
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from PySide6.QtCore import QThread, Signal
 
+from .expanded_dictionary import (
+    expanded_dictionary_ready,
+    lookup_expanded,
+    omw_installed,
+)
 from .offline_resources import (
     FREEDICT_DB,
-    WORDNET_DIR,
     configure_nltk,
     offline_pack_ready,
 )
 
 
-_CACHE: dict[tuple[str, str], object] = {}
+_CACHE: dict[tuple[str, str, bool], object] = {}
 _CMU = None
 
 POS_PT = {
@@ -28,6 +32,12 @@ POS_PT = {
     "verb": "verbo",
     "adjective": "adjetivo",
     "adverb": "advérbio",
+    "adj": "adjetivo",
+    "adv": "advérbio",
+    "pron": "pronome",
+    "prep": "preposição",
+    "det": "determinante",
+    "intj": "interjeição",
 }
 
 STOPWORDS = {
@@ -51,6 +61,8 @@ class OfflineDictionaryResult:
     synonyms: list[str]
     translations: list[str]
     note: str
+    definitions_pt: list[str] = field(default_factory=list)
+    sources: list[str] = field(default_factory=list)
 
 
 def _normalize(value: str) -> str:
@@ -99,7 +111,6 @@ def _freedict(word: str) -> tuple[list[str], str, str]:
     if not FREEDICT_DB.exists():
         return [], "", word
 
-    # Conexão curta e exclusiva da thread atual.
     with sqlite3.connect(FREEDICT_DB) as db:
         for candidate in _lookup_candidates(word):
             rows = db.execute(
@@ -125,6 +136,35 @@ def _freedict(word: str) -> tuple[list[str], str, str]:
                 )
                 return translations[:12], pos, candidate
     return [], "", word
+
+
+def _argos_fallback(word: str) -> str:
+    """Último fallback, totalmente local, usando o modelo Argos já instalado."""
+    try:
+        import argostranslate.translate as at
+
+        languages = at.get_installed_languages()
+        source = next((lang for lang in languages if lang.code == "en"), None)
+        targets = [
+            lang for lang in languages
+            if lang.code in {"pt", "pt_br", "pt-BR", "pb"}
+        ]
+        targets.sort(
+            key=lambda lang: 0
+            if lang.code in {"pt_br", "pt-BR", "pb"} else 1
+        )
+        if source:
+            for target in targets:
+                try:
+                    translation = source.get_translation(target)
+                    value = str(translation.translate(word) or "").strip()
+                    if value and _normalize(value) != _normalize(word):
+                        return value
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return ""
 
 
 def _arpabet_to_ipa(phones: list[str]) -> str:
@@ -193,7 +233,10 @@ def _wordnet(word: str, sentence: str):
         for order, synset in enumerate(synsets[:18]):
             definition = synset.definition() or ""
             examples = list(synset.examples() or [])
-            lemmas = [lemma.name().replace("_", " ") for lemma in synset.lemmas()]
+            lemmas = [
+                lemma.name().replace("_", " ")
+                for lemma in synset.lemmas()
+            ]
             candidate_tokens = _tokens(
                 definition
                 + " "
@@ -209,20 +252,52 @@ def _wordnet(word: str, sentence: str):
                 score += 1.0
             if score > best_score:
                 best_score = score
-                best = (definition, examples, lemmas, pos)
+                best = (synset, definition, examples, lemmas, pos)
         break
 
     if best is None:
-        return lookup, "", "", [], "", ""
+        return lookup, "", "", [], "", "", []
 
-    definition, examples, lemmas, pos = best
+    synset, definition, examples, lemmas, pos = best
     synonyms = [
         value for value in lemmas
         if _normalize(value) != _normalize(lookup)
     ]
     synonyms = list(dict.fromkeys(synonyms))[:8]
     example = examples[0] if examples else ""
-    return lookup, definition, example, synonyms, pos, POS_PT.get(pos, pos)
+
+    pt_lemmas = []
+    if omw_installed():
+        try:
+            pt_lemmas = [
+                lemma.name().replace("_", " ")
+                for lemma in synset.lemmas(lang="por")
+            ]
+            pt_lemmas = list(dict.fromkeys(pt_lemmas))[:12]
+        except Exception:
+            pt_lemmas = []
+
+    return (
+        lookup,
+        definition,
+        example,
+        synonyms,
+        pos,
+        POS_PT.get(pos, pos),
+        pt_lemmas,
+    )
+
+
+def _dedupe(values):
+    out = []
+    seen = set()
+    for value in values:
+        value = str(value or "").strip()
+        key = _normalize(value)
+        if value and key and key not in seen:
+            seen.add(key)
+            out.append(value)
+    return out
 
 
 class OfflineDictionaryWorker(QThread):
@@ -248,37 +323,96 @@ class OfflineDictionaryWorker(QThread):
             if not offline_pack_ready():
                 raise RuntimeError("O pacote offline ainda não está instalado.")
 
-            key = (_normalize(self.word), self.sentence_en)
+            expanded_ready = expanded_dictionary_ready()
+            key = (_normalize(self.word), self.sentence_en, expanded_ready)
             cached = _CACHE.get(key)
             if cached is not None:
                 self.completed.emit(cached)
                 return
 
-            translations, fd_pos, fd_lookup = _freedict(self.word)
-            lookup, definition, example, synonyms, pos, pos_pt = _wordnet(
-                self.word, self.sentence_en
+            expanded = lookup_expanded(self.word) if expanded_ready else None
+            fd_translations, fd_pos, fd_lookup = _freedict(self.word)
+
+            (
+                wn_lookup,
+                definition,
+                example,
+                synonyms,
+                wn_pos,
+                wn_pos_pt,
+                omw_translations,
+            ) = _wordnet(
+                expanded.lookup_word if expanded else self.word,
+                self.sentence_en,
             )
+
+            expanded_translations = expanded.translations if expanded else []
+            definitions_pt = expanded.definitions_pt if expanded else []
+
+            translations = _dedupe(
+                omw_translations
+                + expanded_translations
+                + fd_translations
+            )
+
+            if not translations:
+                argos_value = _argos_fallback(wn_lookup or self.word)
+                if argos_value:
+                    translations = [argos_value]
 
             context = (self.context_translation or "").strip()
             if not context and translations:
                 context = translations[0]
 
+            pos = wn_pos
+            pos_pt = wn_pos_pt
+            if not pos and expanded and expanded.pos:
+                pos = expanded.pos
+                pos_pt = POS_PT.get(pos, pos)
             if not pos and fd_pos:
                 pos = fd_pos
-                pos_pt = fd_pos
+                pos_pt = POS_PT.get(fd_pos, fd_pos)
+
+            lookup_word = (
+                wn_lookup
+                or (expanded.lookup_word if expanded else "")
+                or fd_lookup
+                or self.word
+            )
+
+            phonetic = (
+                (expanded.ipa if expanded else "")
+                or _ipa(lookup_word or self.word)
+            )
+
+            example_en = example or (expanded.example if expanded else "")
+
+            sources = ["WordNet local"]
+            if expanded:
+                sources.insert(0, "Wikcionário/Kaikki")
+            if omw_translations:
+                sources.append("Open Multilingual WordNet")
+            if fd_translations:
+                sources.append("FreeDict")
+            if translations and not (
+                omw_translations or expanded_translations or fd_translations
+            ):
+                sources.append("Argos local")
 
             result = OfflineDictionaryResult(
                 word=self.word,
-                lookup_word=lookup or fd_lookup or self.word,
+                lookup_word=lookup_word,
                 context_translation=context,
-                phonetic=_ipa(lookup or self.word),
+                phonetic=phonetic,
                 part_of_speech=pos,
                 part_of_speech_pt=pos_pt,
                 definition_en=definition,
-                example_en=example,
+                example_en=example_en,
                 synonyms=synonyms,
-                translations=translations,
-                note="Dicionário local • sem consulta à internet",
+                translations=translations[:18],
+                note="Dicionário local expandido • sem consulta online",
+                definitions_pt=definitions_pt[:10],
+                sources=list(dict.fromkeys(sources)),
             )
             _CACHE[key] = result
             self.completed.emit(result)
