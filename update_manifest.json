@@ -1,33 +1,28 @@
 {
-  "version": "0.7.1",
+  "version": "0.8.0",
   "manifest_format": 2,
-  "source_commit": "30860d531014dad30e29c3dad9ff5ccf1f202369",
-  "notes": "V0.7.1: adiciona edição, remoção e gerenciamento de cards; corrige o botão Trecho original para carregar no timestamp correto mesmo após reiniciar o app e reproduzir um trecho em loop; adiciona Biblioteca de vídeos persistente com reabertura em um clique e memória do último ponto assistido.",
+  "source_commit": "9ef6fe601e08a3a5cecc78f7302f581e588ce725",
+  "notes": "V0.8.0: adiciona o modo Escuta e Shadowing. O app permite selecionar trechos da legenda, ouvir sem ver o texto, escrever o que foi entendido, comparar palavra por palavra com pontuação de acerto, revelar EN/PT e repetir o mesmo trecho em loop para shadowing. O histórico e a média de acertos ficam salvos localmente no SQLite, sem serviços online.",
   "files": [
     {
-      "path": "english_player/review_card_manager.py",
-      "sha256": "212daec8b2d901c5eab71e63f3895079a853794dc18a82b746a9578a7dbdf0a3",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/30860d531014dad30e29c3dad9ff5ccf1f202369/english_player/review_card_manager.py"
+      "path": "english_player/listening_practice.py",
+      "sha256": "eb8a22e6095856bc8b34da38fc7bca198af654d7308cc406e6246bbc0e254af1",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9ef6fe601e08a3a5cecc78f7302f581e588ce725/english_player/listening_practice.py"
     },
     {
-      "path": "english_player/video_library.py",
-      "sha256": "18dadc1a9fcff17d8783c6d68e47405b801f644862dfc282201aaa8512de0212",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/30860d531014dad30e29c3dad9ff5ccf1f202369/english_player/video_library.py"
-    },
-    {
-      "path": "english_player/v071_window.py",
-      "sha256": "4ed48e92c84fa7022ca3c4f432324924b7d54eb4c941276d2c26170ec7f56545",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/30860d531014dad30e29c3dad9ff5ccf1f202369/english_player/v071_window.py"
+      "path": "english_player/v080_window.py",
+      "sha256": "5c624e465e91f19a6b4da103d0809c8f7428fb1df8f73ceeaf5c5fe32ff7ef45",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9ef6fe601e08a3a5cecc78f7302f581e588ce725/english_player/v080_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "d5bbc35c76ade4f58df5d5cc027c120ff54c182a8ae3332cb45f93fc3de8626b",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/30860d531014dad30e29c3dad9ff5ccf1f202369/main.py"
+      "sha256": "f541d4c29c32c169beafb7530baad77674d756a039a3f113ffefa892ad640c60",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9ef6fe601e08a3a5cecc78f7302f581e588ce725/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "d8a2590d230e1bb292f3603160ead9e198a16315f4c237d48c3b08661dcbd36e",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/30860d531014dad30e29c3dad9ff5ccf1f202369/english_player/__init__.py"
+      "sha256": "88f95809c233bb35bb4f61ca0e499894c911239d5d04b7cd4713cf896adfc3d5",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9ef6fe601e08a3a5cecc78f7302f581e588ce725/english_player/__init__.py"
     }
   ],
   "delete": []
