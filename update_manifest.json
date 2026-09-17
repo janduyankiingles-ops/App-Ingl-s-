@@ -1,26 +1,26 @@
 {
-  "version": "0.5.2",
-  "notes": "V0.5.2: corrige o botão Ouvir pronúncia. O app baixa o áudio do dicionário para cache local e toca o arquivo local; quando não houver áudio disponível, usa a voz inglesa instalada no Windows como fallback.",
+  "version": "0.5.3",
+  "notes": "V0.5.3: corrige a falha de integridade da V0.5.2 no arquivo v052_window.py e mantém a correção do botão Ouvir pronúncia com cache local e fallback para TTS do Windows.",
   "files": [
     {
       "path": "english_player/pronunciation_worker.py",
       "sha256": "8b831e78a2c9883587f343cd08659752f4345ec649d0937a626e08f9475f7e83",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/pronunciation_worker.py?v=0.5.2"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/pronunciation_worker.py?v=0.5.3"
     },
     {
       "path": "english_player/v052_window.py",
-      "sha256": "f780f9e25bb80a4bc01f656e6ae2383f669e4475f464801b888501755f54e95f",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v052_window.py?v=0.5.2"
+      "sha256": "a44537c2be9406f3be69b52b9f3cb221f4aed3c1cd256a5fc28b2fc10b49b4d3",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/v052_window.py?v=0.5.3"
     },
     {
       "path": "main.py",
       "sha256": "811d586f00e58884adb45293b32a99785b75c9def58a21860539a6c47bdb48f4",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.5.2"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/main.py?v=0.5.3"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "8ac26b98304b45a83b65cd942bd668bd618ebfb8e2d4e87ecc9b4930d245917c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.5.2"
+      "sha256": "b60ceea8729c11d28168fe7b179a17c6ae17956da7f49e058fc646bbb9c63998",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/main/english_player/__init__.py?v=0.5.3"
     }
   ],
   "delete": []
