@@ -1,0 +1,17 @@
+name: Hash V071
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  hash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SHA256
+        run: |
+          sha256sum english_player/v071_window.py
+          sha256sum english_player/video_library.py
+          sha256sum main.py
+          sha256sum english_player/__init__.py
