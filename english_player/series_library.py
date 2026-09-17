@@ -6,8 +6,13 @@ from datetime import datetime
 from pathlib import Path
 
 
-_EPISODE_RE = re.compile(
-    r"(?i)(?:^|[^a-z0-9])s(?P<season>\d{1,2})[ ._-]*e(?P<episode>\d{1,3})(?:[^a-z0-9]|$)"
+_EPISODE_PATTERNS = (
+    re.compile(
+        r"(?i)(?:^|[^a-z0-9])s(?P<season>\d{1,2})[ ._-]*e(?P<episode>\d{1,3})(?:[^a-z0-9]|$)"
+    ),
+    re.compile(
+        r"(?i)(?:^|[^0-9])(?P<season>\d{1,2})\s*x\s*(?P<episode>\d{1,3})(?:[^0-9]|$)"
+    ),
 )
 
 
@@ -37,10 +42,12 @@ class SeriesEpisode:
 
 
 def parse_episode_numbers(filename: str) -> tuple[int | None, int | None]:
-    match = _EPISODE_RE.search(filename or "")
-    if not match:
-        return None, None
-    return int(match.group("season")), int(match.group("episode"))
+    value = filename or ""
+    for pattern in _EPISODE_PATTERNS:
+        match = pattern.search(value)
+        if match:
+            return int(match.group("season")), int(match.group("episode"))
+    return None, None
 
 
 def natural_key(value: str):
@@ -201,6 +208,18 @@ class SeriesLibraryStore:
             )
             count += 1
         return count
+
+    def next_episode_number(self, series_title: str, season_number: int) -> int:
+        with self.database.connect() as conn:
+            row = conn.execute(
+                """
+                SELECT MAX(episode_number)
+                FROM series_episodes
+                WHERE series_title = ? AND season_number = ?
+                """,
+                (str(series_title), max(1, int(season_number))),
+            ).fetchone()
+        return max(1, int((row[0] if row else 0) or 0) + 1)
 
     def update_position(
         self,
