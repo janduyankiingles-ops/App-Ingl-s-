@@ -130,6 +130,11 @@ class MediaStorage:
         folder.mkdir(parents=True, exist_ok=True)
         return folder
 
+    def music_folder(self) -> Path:
+        folder = self.root / "Music"
+        folder.mkdir(parents=True, exist_ok=True)
+        return folder
+
     def series_folder(self, series: str, season: int) -> Path:
         folder = (
             self.root
@@ -239,6 +244,35 @@ class MediaStorage:
         if import_mode == "move":
             # Só remove o original após confirmar que o arquivo copiado tem
             # exatamente o mesmo tamanho.
+            if target.stat().st_size != source.stat().st_size:
+                raise IOError("Não foi possível validar o arquivo antes de mover.")
+            source.unlink()
+
+        return str(target)
+
+    def import_music(
+        self,
+        source_path: str,
+        *,
+        mode: str | None = None,
+        progress: ProgressCallback | None = None,
+    ) -> str:
+        source = Path(source_path)
+        if not source.exists() or not source.is_file():
+            raise FileNotFoundError(str(source))
+
+        if self.is_managed(source):
+            return str(source)
+
+        import_mode = (mode or self.mode).lower()
+        if import_mode not in {"copy", "move"}:
+            import_mode = "copy"
+
+        target = self._unique_destination(self.music_folder(), source.name)
+        self._copy_stream(source, target, progress)
+        self._transfer_sidecars(source, target, import_mode == "move")
+
+        if import_mode == "move":
             if target.stat().st_size != source.stat().st_size:
                 raise IOError("Não foi possível validar o arquivo antes de mover.")
             source.unlink()
