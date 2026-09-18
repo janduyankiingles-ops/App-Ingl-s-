@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 from pathlib import Path
+from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -195,7 +196,7 @@ class SentencePracticeDialog(QDialog):
             f"{body}</div>"
         )
 
-        self.check_button.setEnabled(True)
+        self.check_button.setEnabled(False)
         self.reveal_button.setEnabled(True)
         self.scene_button.setEnabled(bool(
             self.sentence_store.get(q.card_id)
