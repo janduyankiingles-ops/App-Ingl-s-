@@ -1,14 +1,22 @@
 from __future__ import annotations
 
+# V1.3.4: tema menos invasivo. A versão anterior estilizou TODOS os QWidget
+# com fundo e métricas globais, o que interferiu em layouts antigos e widgets
+# com altura calculada. Agora o tema atua principalmente nos componentes
+# visuais, sem forçar geometria nos conteúdos existentes.
 APP_STYLE = r"""
-QMainWindow, QWidget {
+QMainWindow {
     background-color: #08131f;
     color: #dce8f1;
-    font-family: "Segoe UI";
-    font-size: 13px;
 }
 
-QWidget#appShell {
+QWidget {
+    color: #dce8f1;
+    font-family: "Segoe UI";
+}
+
+QWidget#appShell,
+QWidget#appMainArea {
     background-color: #08131f;
 }
 
@@ -22,47 +30,51 @@ QFrame#topbar {
     border-bottom: 1px solid #173247;
 }
 
-QFrame#contentCard {
-    background-color: #0b1825;
+QFrame#toolbarCard,
+QFrame#softCard {
+    background-color: #0c1b29;
     border: 1px solid #173247;
-    border-radius: 14px;
+    border-radius: 11px;
+}
+
+QLabel {
+    background: transparent;
 }
 
 QLabel#brandTitle {
     color: #f6fbff;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
 }
 
-QLabel#brandSubtitle,
 QLabel#mutedLabel {
     color: #7891a8;
 }
 
 QLabel#screenTitle {
     color: #f6fbff;
-    font-size: 24px;
+    font-size: 19px;
     font-weight: 700;
 }
 
 QLabel#screenSubtitle {
     color: #7891a8;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 QListWidget#sidebarNav {
     background: transparent;
     border: 0;
     outline: 0;
-    padding: 4px;
+    padding: 2px;
 }
 
 QListWidget#sidebarNav::item {
     color: #9fb2c2;
-    min-height: 42px;
-    padding: 0 12px;
-    margin: 3px 4px;
-    border-radius: 10px;
+    min-height: 40px;
+    padding: 0 10px;
+    margin: 2px 2px;
+    border-radius: 9px;
 }
 
 QListWidget#sidebarNav::item:hover {
@@ -72,7 +84,7 @@ QListWidget#sidebarNav::item:hover {
 
 QListWidget#sidebarNav::item:selected {
     background-color: #0e7094;
-    color: white;
+    color: #ffffff;
     font-weight: 600;
     border-left: 3px solid #39d7ff;
 }
@@ -80,12 +92,12 @@ QListWidget#sidebarNav::item:selected {
 QLineEdit,
 QComboBox,
 QSpinBox {
-    min-height: 34px;
-    padding: 0 10px;
+    min-height: 30px;
+    padding: 2px 8px;
     background-color: #0f2232;
     color: #e8f2f8;
     border: 1px solid #214158;
-    border-radius: 9px;
+    border-radius: 8px;
     selection-background-color: #0e7ca6;
 }
 
@@ -97,16 +109,16 @@ QSpinBox:focus {
 
 QComboBox::drop-down {
     border: 0;
-    width: 24px;
+    width: 22px;
 }
 
 QPushButton {
-    min-height: 34px;
-    padding: 0 13px;
+    min-height: 28px;
+    padding: 4px 10px;
     background-color: #10283a;
     color: #dceaf3;
     border: 1px solid #21455d;
-    border-radius: 9px;
+    border-radius: 8px;
     font-weight: 600;
 }
 
@@ -135,23 +147,19 @@ QPushButton:disabled {
 QGroupBox {
     background-color: #0d1c2a;
     border: 1px solid #1d3a4e;
-    border-radius: 12px;
-    margin-top: 13px;
-    padding: 12px;
+    border-radius: 10px;
+    margin-top: 14px;
+    padding-top: 8px;
     font-weight: 600;
     color: #dfeaf1;
 }
 
 QGroupBox::title {
     subcontrol-origin: margin;
-    left: 12px;
-    padding: 0 6px;
+    subcontrol-position: top left;
+    left: 10px;
+    padding: 0 5px;
     color: #7edfff;
-}
-
-QFrame[frameShape="4"],
-QFrame[frameShape="5"] {
-    color: #1d3a4e;
 }
 
 QTableWidget,
@@ -161,7 +169,7 @@ QListWidget {
     alternate-background-color: #0e2030;
     color: #d9e7f0;
     border: 1px solid #1b394e;
-    border-radius: 10px;
+    border-radius: 8px;
     gridline-color: #173247;
     selection-background-color: #0c5875;
     selection-color: white;
@@ -169,11 +177,11 @@ QListWidget {
 
 QHeaderView::section {
     background-color: #102436;
-    color: #83a0b6;
+    color: #9ab0c0;
     border: 0;
     border-right: 1px solid #173247;
     border-bottom: 1px solid #173247;
-    padding: 8px;
+    padding: 6px;
     font-weight: 600;
 }
 
@@ -183,17 +191,17 @@ QTableCornerButton::section {
 }
 
 QProgressBar {
-    min-height: 18px;
+    min-height: 17px;
     color: #dce8f1;
     background-color: #102332;
     border: 1px solid #1f4056;
-    border-radius: 8px;
+    border-radius: 7px;
     text-align: center;
 }
 
 QProgressBar::chunk {
     background-color: #17bce8;
-    border-radius: 7px;
+    border-radius: 6px;
 }
 
 QSlider::groove:horizontal {
@@ -208,7 +216,7 @@ QSlider::sub-page:horizontal {
 }
 
 QSlider::handle:horizontal {
-    width: 15px;
+    width: 14px;
     margin: -5px 0;
     background: #4bdcff;
     border-radius: 7px;
@@ -216,24 +224,7 @@ QSlider::handle:horizontal {
 
 QCheckBox {
     color: #b8cbd8;
-    spacing: 7px;
-}
-
-QCheckBox::indicator {
-    width: 17px;
-    height: 17px;
-}
-
-QCheckBox::indicator:unchecked {
-    background: #102332;
-    border: 1px solid #31546b;
-    border-radius: 5px;
-}
-
-QCheckBox::indicator:checked {
-    background: #19bde8;
-    border: 1px solid #35d5ff;
-    border-radius: 5px;
+    spacing: 6px;
 }
 
 QTabWidget::pane {
@@ -244,7 +235,7 @@ QTabWidget::pane {
 QTabBar::tab {
     background: transparent;
     color: #8ba2b4;
-    padding: 9px 14px;
+    padding: 7px 11px;
     border-bottom: 2px solid transparent;
 }
 
@@ -256,7 +247,6 @@ QTabBar::tab:selected {
 QScrollBar:vertical {
     background: #0b1824;
     width: 10px;
-    margin: 0;
 }
 
 QScrollBar::handle:vertical {
@@ -265,12 +255,20 @@ QScrollBar::handle:vertical {
     min-height: 28px;
 }
 
-QScrollBar::handle:vertical:hover {
-    background: #33708d;
+QScrollBar:horizontal {
+    background: #0b1824;
+    height: 10px;
 }
 
-QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
+QScrollBar::handle:horizontal {
+    background: #24485e;
+    border-radius: 5px;
+    min-width: 28px;
+}
+
+QScrollBar::add-line,
+QScrollBar::sub-line {
+    width: 0;
     height: 0;
 }
 
@@ -278,6 +276,6 @@ QToolTip {
     background-color: #132a3b;
     color: #eef8ff;
     border: 1px solid #2a5973;
-    padding: 6px;
+    padding: 5px;
 }
 """
