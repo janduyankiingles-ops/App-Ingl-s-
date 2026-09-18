@@ -210,12 +210,27 @@ class ProgressStore:
 
         has_review = self._table_exists(conn, "review_cards")
         has_quiz = self._table_exists(conn, "quiz_log")
+        has_learning = self._table_exists(
+            conn, "vocabulary_learning_state"
+        )
 
         review_join = (
             "LEFT JOIN review_cards r ON r.vocabulary_id = v.id"
             if has_review
             else ""
         )
+        learning_join = (
+            "LEFT JOIN vocabulary_learning_state s "
+            "ON s.vocabulary_id = v.id"
+            if has_learning
+            else ""
+        )
+        learning_filter = (
+            "AND COALESCE(s.status, 'new') NOT IN ('known', 'ignore')"
+            if has_learning
+            else ""
+        )
+
         quiz_join = (
             """
             LEFT JOIN (
@@ -250,7 +265,9 @@ class ProgressStore:
             FROM vocabulary v
             {review_join}
             {quiz_join}
-            WHERE ({lapses}) > 0 OR ({wrong}) > 0
+            {learning_join}
+            WHERE (({lapses}) > 0 OR ({wrong}) > 0)
+            {learning_filter}
             ORDER BY
                 (({lapses}) * 3 + ({wrong}) * 2
                  + CASE WHEN ({avg_score}) > 0 AND ({avg_score}) < 70 THEN 2 ELSE 0 END)
@@ -299,18 +316,50 @@ class ProgressStore:
             due = 0
             mastered = 0
             if self._table_exists(conn, "review_cards"):
-                due = self._scalar(
-                    conn,
-                    "SELECT COUNT(*) FROM review_cards WHERE due_at <= ?",
-                    (self._now_iso(),),
+                has_learning = self._table_exists(
+                    conn, "vocabulary_learning_state"
                 )
-                mastered = self._scalar(
-                    conn,
-                    """
-                    SELECT COUNT(*) FROM review_cards
-                    WHERE interval_days >= 21 AND repetitions >= 3
-                    """,
-                )
+                if has_learning:
+                    due = self._scalar(
+                        conn,
+                        """
+                        SELECT COUNT(*)
+                        FROM review_cards r
+                        LEFT JOIN vocabulary_learning_state s
+                          ON s.vocabulary_id = r.vocabulary_id
+                        WHERE r.due_at <= ?
+                          AND COALESCE(s.status, 'new')
+                              NOT IN ('known', 'ignore')
+                        """,
+                        (self._now_iso(),),
+                    )
+                    mastered = self._scalar(
+                        conn,
+                        """
+                        SELECT COUNT(*)
+                        FROM review_cards r
+                        LEFT JOIN vocabulary_learning_state s
+                          ON s.vocabulary_id = r.vocabulary_id
+                        WHERE (
+                            r.interval_days >= 21
+                            AND r.repetitions >= 3
+                        )
+                        OR COALESCE(s.status, 'new') = 'known'
+                        """,
+                    )
+                else:
+                    due = self._scalar(
+                        conn,
+                        "SELECT COUNT(*) FROM review_cards WHERE due_at <= ?",
+                        (self._now_iso(),),
+                    )
+                    mastered = self._scalar(
+                        conn,
+                        """
+                        SELECT COUNT(*) FROM review_cards
+                        WHERE interval_days >= 21 AND repetitions >= 3
+                        """,
+                    )
 
             today_counts = self._day_counts(conn, today)
 
