@@ -1,188 +1,198 @@
 {
-  "version": "1.3.5",
+  "version": "1.5.0",
   "manifest_format": 2,
-  "source_commit": "053798b510115c55c39926c8169a93d211719067",
-  "notes": "V1.3.5: refaz a limpeza da interface sobre a base funcional V1.3.2. Remove o texto gigante acumulado de histórico de versões, elimina os pseudo-ícones Unicode da navegação, reorganiza os controles de vídeo em grupos Arquivo/Legendas/Transcrição, impede rótulos cortados com larguras mínimas adequadas e mostra as ferramentas de vídeo somente em Assistir/Estudar. Também simplifica os controles principais de vídeo e Música para texto consistente.",
+  "source_commit": "bfec0e9f871a11630a9da43795b5d6f9ccb27e94",
+  "notes": "V1.5.0: pula a etapa de gravação por microfone e adiciona Vocabulário Inteligente. Cada palavra pode ser Nova, Aprendendo, Conhecida ou Ignorar. O app calcula prioridade usando frequência no vocabulário, erros de Revisão e desempenho no Quiz; Revisão e Quiz deixam de selecionar Conhecidas/Ignoradas e passam a priorizar termos mais importantes. A tela de Vocabulário ganha resumo e gerenciador com busca, filtros e mudança de status, e a Revisão recebe o atalho Já conheço.",
   "files": [
     {
       "path": "english_player/review_system.py",
-      "sha256": "33bbbb2d896d3f24952ebf6685c64184baab6c60263d53ddbaba70c8a5d6263a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/review_system.py"
+      "sha256": "26e861739ce14c2792fae7d56932f6e317dd05c757d1e61afb1f01fd04e5a12d",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/review_system.py"
     },
     {
       "path": "english_player/review_card_manager.py",
       "sha256": "212daec8b2d901c5eab71e63f3895079a853794dc18a82b746a9578a7dbdf0a3",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/review_card_manager.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/review_card_manager.py"
     },
     {
       "path": "english_player/video_library.py",
       "sha256": "18dadc1a9fcff17d8783c6d68e47405b801f644862dfc282201aaa8512de0212",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/video_library.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/video_library.py"
     },
     {
       "path": "english_player/v070_window.py",
       "sha256": "fb7b0003d6bf0dbe2a5e94d72cad3d24a44af8887c95ef5ca06bd0d1321ee5d0",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v070_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v070_window.py"
     },
     {
       "path": "english_player/v071_window.py",
       "sha256": "4ed48e92c84fa7022ca3c4f432324924b7d54eb4c941276d2c26170ec7f56545",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v071_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v071_window.py"
     },
     {
       "path": "english_player/listening_practice.py",
       "sha256": "eb8a22e6095856bc8b34da38fc7bca198af654d7308cc406e6246bbc0e254af1",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/listening_practice.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/listening_practice.py"
     },
     {
       "path": "english_player/v080_window.py",
       "sha256": "5c624e465e91f19a6b4da103d0809c8f7428fb1df8f73ceeaf5c5fe32ff7ef45",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v080_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v080_window.py"
     },
     {
       "path": "english_player/quiz_system.py",
-      "sha256": "d90ad83f2ba9dddfbcb17f7e3358c42ac5bf504917aa5a01dcff6495a47ab525",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/quiz_system.py"
+      "sha256": "a480e98ef551624bafd50426a7ca4b51ded5494c05276062332d123fc4670775",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/quiz_system.py"
     },
     {
       "path": "english_player/v090_window.py",
       "sha256": "eb46c13eccdc8a3a4191e722b087e404743c34b69e17dfa53c9429df6ad6bc22",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v090_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v090_window.py"
     },
     {
       "path": "english_player/clip_player.py",
       "sha256": "1bda84400e6560ec841e4e8450dea2faae785adc69cba5a5d7989d347351ff1d",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/clip_player.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/clip_player.py"
     },
     {
       "path": "english_player/v092_window.py",
       "sha256": "673cdebc7ad33b4a51134139c06d561c9fd06a51ee5a18e9b7c3dc8ee5fe6a6e",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v092_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v092_window.py"
     },
     {
       "path": "english_player/progress_store.py",
-      "sha256": "e0c76e6aaa2055b12a12cea39175058018ef143aa7cdf7e5197791878424dd17",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/progress_store.py"
+      "sha256": "538a144cdcd4b24afa37972065dcdef29fb20d4cbbe17c5155810eff1f4a1f70",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/progress_store.py"
     },
     {
       "path": "english_player/v100_window.py",
       "sha256": "e3ff0ce84a0bd3e8595b5dad519f404f63eef13c2729dc26b24429f13532f54b",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v100_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v100_window.py"
     },
     {
       "path": "english_player/study_planner.py",
       "sha256": "65f8206a8e99110799045f4c7b6421b3458e459e54a38bd53cd317066f5be655",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/study_planner.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/study_planner.py"
     },
     {
       "path": "english_player/v110_window.py",
       "sha256": "d69d3769fe6e0715e3394fc9d2f58ba75cf7ca9c0ea58aa6e91cd14028f0a98d",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v110_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v110_window.py"
     },
     {
       "path": "english_player/series_library.py",
       "sha256": "91119095f9fd0a36042ed341b46f045afa0730cc64811fd933f464e885a48505",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/series_library.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/series_library.py"
     },
     {
       "path": "english_player/v120_window.py",
       "sha256": "f8c3053b0006965288a79f35b419891f8b365ed94340e7912708309f7597f95f",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v120_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v120_window.py"
     },
     {
       "path": "english_player/media_storage.py",
       "sha256": "335d00f8c1be69895fddacd3827468b27aedb9835c6a4df59eef044e676a9a0b",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/media_storage.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/media_storage.py"
     },
     {
       "path": "english_player/v121_window.py",
       "sha256": "fd499a98d75bee1629dfa6e0dceee9c0b8b83d9f16493788136d8ee340c4697a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v121_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v121_window.py"
     },
     {
       "path": "english_player/v122_window.py",
       "sha256": "5c611b4b3ce4941111b515390cd89158601ee1b2f96aa5318d6b961c50c941c7",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v122_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v122_window.py"
     },
     {
       "path": "main.py",
-      "sha256": "e5b7e7a64aba5763c72ebf30fd8d54da929c9fb5b9d94ac101e4ca337f34ef60",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/main.py"
+      "sha256": "15ec46a17430b5a89c90eb3611c98e9623aad3c68528cdee8552dbbcc235ed48",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/main.py"
     },
     {
       "path": "english_player/__init__.py",
-      "sha256": "b5daaf9061f43abc918e35f33b71d2e43c98a25f954cef5f0bc9b8de70763e02",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/__init__.py"
+      "sha256": "5fda537861c8619b433a67dbf699e7d8312a599300c9a3e5a9d170121b2e4af9",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/__init__.py"
     },
     {
       "path": "english_player/player_widget.py",
       "sha256": "6c96508398691cb5f019c1de1e102ce1245da3f84596c93c47fdf6f98528e6cc",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/player_widget.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/player_widget.py"
     },
     {
       "path": "english_player/subtitle_registry.py",
       "sha256": "c3cb0a9eafd1dea96a1a342e812667ea00b6e9ab10a06c59222d58b9697f6f7e",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/subtitle_registry.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/subtitle_registry.py"
     },
     {
       "path": "english_player/v124_window.py",
       "sha256": "ce8f9813adbb98f01618c54dadbd3365233e7388ccc7248ff614a46ab156159c",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v124_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v124_window.py"
     },
     {
       "path": "english_player/accurate_transcription.py",
       "sha256": "aeb50a24e671166957e9ca2efb04525836990a205a9a130e80a4742c6fe7d591",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/accurate_transcription.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/accurate_transcription.py"
     },
     {
       "path": "english_player/v125_window.py",
       "sha256": "f0f8bfc3f3c2e0b8f4940c7e0c63a85f3d5c95b906a67fa91c5d9a3f137f61de",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v125_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v125_window.py"
     },
     {
       "path": "english_player/update_service.py",
       "sha256": "22ce7765db3a752f79f01e3b2592b4141239046b940e47b172b81b73f201ea6a",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/update_service.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/update_service.py"
     },
     {
       "path": "english_player/music_library.py",
       "sha256": "c487e98bad4f2e6c768a19be4d95c94e2541f2406f4d38a7f9256f53c20353ed",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/music_library.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/music_library.py"
     },
     {
       "path": "english_player/v130_window.py",
       "sha256": "079eeba5278576109dfdf598af4142bd0776c9c2abacc9f95ffa9e507dee8616",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v130_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v130_window.py"
     },
     {
       "path": "english_player/v131_window.py",
       "sha256": "695ec8ccd1917656c51ea67f4f511d136f14ba8fbcd4a9ae66b31dd79669cf7d",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v131_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v131_window.py"
     },
     {
       "path": "english_player/v132_window.py",
       "sha256": "a86cbcfe8431c0cdfc3a22a7e34ed42d99af59bb6bec0683af867888d91a814d",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v132_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v132_window.py"
     },
     {
       "path": "english_player/ui_theme.py",
       "sha256": "ed3903bbf7ca6b84994473504d1d8b36c37f192ebc13a61f60250fa36b5cf83b",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/ui_theme.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/ui_theme.py"
     },
     {
       "path": "english_player/v133_window.py",
       "sha256": "8f7000b8759acca11225ce6050139fe7445f7312ac0744299842efd8c92428e5",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v133_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v133_window.py"
     },
     {
       "path": "english_player/v134_window.py",
       "sha256": "401d0f40d61d1d5761414c1c4a6ebc5b37c83e42ab07389877013ecf4599d032",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v134_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v134_window.py"
     },
     {
       "path": "english_player/v135_window.py",
       "sha256": "34108b8749c2d0f59696cbe454874d5cd4c687f0ddf2af7d1353bd390b411a65",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/053798b510115c55c39926c8169a93d211719067/english_player/v135_window.py"
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v135_window.py"
+    },
+    {
+      "path": "english_player/vocabulary_intelligence.py",
+      "sha256": "8689170575f343eac4387b9c41cd5eb607b19e2a9a42cf632aac50f463f30df7",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/vocabulary_intelligence.py"
+    },
+    {
+      "path": "english_player/v136_window.py",
+      "sha256": "45d12cb312ea5751d7dd947d5fe75dbfe7f2bc7fc9bca10396230f557e5f8279",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/bfec0e9f871a11630a9da43795b5d6f9ccb27e94/english_player/v136_window.py"
     }
   ],
   "delete": []
