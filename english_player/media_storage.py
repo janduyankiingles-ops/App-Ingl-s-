@@ -353,6 +353,16 @@ class MediaStorage:
                     (new, old),
                 )
 
+            if "sentence_cards" in tables:
+                conn.execute(
+                    """
+                    UPDATE sentence_cards
+                    SET video_path = ?
+                    WHERE video_path = ?
+                    """,
+                    (new, old),
+                )
+
             if "movie_library" in tables:
                 existing = conn.execute(
                     "SELECT 1 FROM movie_library WHERE path = ?",
