@@ -134,12 +134,49 @@ def _compact(text: str) -> str:
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
+_VERB_FORMS = {
+    "make": ("make", "makes", "made", "making"),
+    "take": ("take", "takes", "took", "taken", "taking"),
+    "pay": ("pay", "pays", "paid", "paying"),
+    "keep": ("keep", "keeps", "kept", "keeping"),
+    "have": ("have", "has", "had", "having"),
+    "get": ("get", "gets", "got", "gotten", "getting"),
+    "come": ("come", "comes", "came", "coming"),
+    "tell": ("tell", "tells", "told", "telling"),
+    "do": ("do", "does", "did", "done", "doing"),
+    "catch": ("catch", "catches", "caught", "catching"),
+    "save": ("save", "saves", "saved", "saving"),
+    "waste": ("waste", "wastes", "wasted", "wasting"),
+    "spend": ("spend", "spends", "spent", "spending"),
+}
+
+
 def _find_literal(sentence: str, phrase: str) -> str:
-    pattern = re.compile(
-        r"\b" + r"\s+".join(re.escape(x) for x in phrase.split()) + r"\b",
-        re.IGNORECASE,
-    )
-    match = pattern.search(sentence)
+    parts = phrase.split()
+    if not parts:
+        return ""
+
+    first = parts[0].lower()
+    if first in _VERB_FORMS:
+        head = "(?:" + "|".join(
+            re.escape(value) for value in _VERB_FORMS[first]
+        ) + ")"
+        tail = [
+            re.escape(value)
+            for value in parts[1:]
+        ]
+        pattern_text = r"\b" + head
+        if tail:
+            pattern_text += r"\s+" + r"\s+".join(tail)
+        pattern_text += r"\b"
+    else:
+        pattern_text = (
+            r"\b"
+            + r"\s+".join(re.escape(x) for x in parts)
+            + r"\b"
+        )
+
+    match = re.search(pattern_text, sentence, re.IGNORECASE)
     return match.group(0) if match else ""
 
 
