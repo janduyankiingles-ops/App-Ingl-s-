@@ -141,17 +141,20 @@ class MainWindowV132(MainWindowV131):
             "Controla quanto da linha será escondido no exercício."
         )
 
-        answer_parent = self.music_answer_input.parentWidget()
-        answer_layout = answer_parent.layout()
-        input_index = answer_layout.indexOf(self.music_answer_input)
-        answer_layout.insertWidget(
-            max(0, input_index),
-            QLabel("Dificuldade:"),
+        answer_layout = self._find_layout_for_widget(
+            self.music_tab.layout(),
+            self.music_answer_input,
         )
-        answer_layout.insertWidget(
-            max(0, input_index + 1),
-            self.music_difficulty_combo,
-        )
+        if answer_layout is not None:
+            input_index = answer_layout.indexOf(self.music_answer_input)
+            answer_layout.insertWidget(
+                max(0, input_index),
+                QLabel("Dificuldade:"),
+            )
+            answer_layout.insertWidget(
+                max(0, input_index + 1),
+                self.music_difficulty_combo,
+            )
 
         # ---------- Conexões ----------
         self.music_search_input.textChanged.connect(
@@ -188,9 +191,27 @@ class MainWindowV132(MainWindowV131):
               "karaoke contextual e níveis no Complete a letra."
         )
 
+    @staticmethod
+    def _find_layout_for_widget(layout, widget):
+        if layout is None:
+            return None
+        if layout.indexOf(widget) >= 0:
+            return layout
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            child_layout = item.layout()
+            if child_layout is not None:
+                found = MainWindowV132._find_layout_for_widget(
+                    child_layout,
+                    widget,
+                )
+                if found is not None:
+                    return found
+        return None
+
     # ---------------- Biblioteca refinada ----------------
 
-    def _refresh_music_library(self):
+    def _refresh_music_library(self, *_args):
         if self.music_store is None or not hasattr(self, "music_list"):
             return
 
@@ -312,7 +333,7 @@ class MainWindowV132(MainWindowV131):
 
     # ---------------- Player refinado ----------------
 
-    def _music_speed_changed(self):
+    def _music_speed_changed(self, *_args):
         try:
             rate = float(self.music_speed_combo.currentData() or 1.0)
         except (TypeError, ValueError):
