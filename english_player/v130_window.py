@@ -4,7 +4,7 @@ import re
 from bisect import bisect_right
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -67,6 +67,8 @@ class MainWindowV130(MainWindowV125):
         self._music_progress_dialog = None
         self._music_quiz_index = -1
         self._music_quiz_expected = ""
+        self._music_pending_seek = None
+        self._music_pending_autoplay = False
         super().__init__()
 
         self.music_store = MusicLibraryStore(self.database)
@@ -377,17 +379,16 @@ class MainWindowV130(MainWindowV125):
         self._stop_other_clip_players(None)
         self.music_path = track.path
         self.music_player.setSource(QUrl.fromLocalFile(track.path))
+        self._music_pending_seek = int(track.last_position_ms)
+        self._music_pending_autoplay = bool(autoplay)
         self.music_now_label.setText(
             f"{track.artist + ' — ' if track.artist else ''}{track.title}"
             + (f"\nÁlbum: {track.album}" if track.album else "")
         )
 
         self._load_music_lyrics(track)
-        self.music_player.setPosition(track.last_position_ms)
-        if autoplay:
-            self.music_player.play()
-        else:
-            self.music_player.pause()
+        QTimer.singleShot(80, self._apply_music_pending_seek)
+        QTimer.singleShot(350, self._apply_music_pending_seek)
 
     def _remove_music(self):
         path = self._selected_music_path()
@@ -439,12 +440,35 @@ class MainWindowV130(MainWindowV125):
 
     def _music_duration_changed(self, duration: int):
         self.music_slider.setRange(0, max(0, int(duration)))
+        self._apply_music_pending_seek()
         if self.music_store and self.music_path and duration > 0:
             self.music_store.update_position(
                 self.music_path,
                 self.music_player.position(),
                 int(duration),
             )
+
+    def _apply_music_pending_seek(self):
+        if self._music_pending_seek is None:
+            return
+        if self.music_player.duration() <= 0:
+            return
+
+        position = max(
+            0,
+            min(
+                int(self._music_pending_seek),
+                max(0, self.music_player.duration() - 200),
+            ),
+        )
+        autoplay = bool(self._music_pending_autoplay)
+        self._music_pending_seek = None
+        self._music_pending_autoplay = False
+        self.music_player.setPosition(position)
+        if autoplay:
+            self.music_player.play()
+        else:
+            self.music_player.pause()
 
     def _music_position_changed(self, position: int):
         if not self.music_slider.isSliderDown():
