@@ -84,7 +84,10 @@ class MainWindowV139(MainWindowV138):
         row.addWidget(self.immersion_status_label)
         row.addStretch(1)
 
-        if hasattr(layout, "addLayout"):
+        # ui_command_panel usa QGridLayout na interface atual.
+        if hasattr(layout, "rowCount"):
+            layout.addLayout(row, layout.rowCount(), 0, 1, 6)
+        elif hasattr(layout, "addLayout"):
             layout.addLayout(row)
 
         self.immersion_mode_combo.currentIndexChanged.connect(
