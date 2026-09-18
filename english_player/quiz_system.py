@@ -111,6 +111,27 @@ class QuizStore:
                 "CREATE INDEX IF NOT EXISTS idx_quiz_log_created "
                 "ON quiz_log(created_at)"
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS vocabulary_learning_state (
+                    vocabulary_id INTEGER PRIMARY KEY,
+                    status TEXT NOT NULL DEFAULT 'new',
+                    priority INTEGER NOT NULL DEFAULT 50,
+                    manual INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO vocabulary_learning_state(
+                    vocabulary_id, status, priority, manual, updated_at
+                )
+                SELECT id, 'new', 50, 0, ?
+                FROM vocabulary
+                """,
+                (self._now(),),
+            )
 
     @staticmethod
     def _now() -> str:
@@ -128,6 +149,9 @@ class QuizStore:
                         AS with_pt
                 FROM vocabulary v
                 LEFT JOIN review_cards r ON r.vocabulary_id = v.id
+                LEFT JOIN vocabulary_learning_state s
+                  ON s.vocabulary_id = v.id
+                WHERE COALESCE(s.status, 'new') NOT IN ('known', 'ignore')
                 """
             ).fetchone()
         total = int(row["total"] or 0)
@@ -142,7 +166,7 @@ class QuizStore:
     def question(self, mode: str, exclude_id: int | None = None) -> QuizQuestion | None:
         mode = (mode or "cloze").strip().lower()
         params = []
-        where = ["1=1"]
+        where = ["COALESCE(s.status, 'new') NOT IN ('known', 'ignore')"]
 
         if exclude_id is not None:
             where.append("v.id <> ?")
@@ -164,8 +188,10 @@ class QuizStore:
                     COALESCE(r.meaning, '') AS meaning
                 FROM vocabulary v
                 LEFT JOIN review_cards r ON r.vocabulary_id = v.id
+                LEFT JOIN vocabulary_learning_state s
+                  ON s.vocabulary_id = v.id
                 WHERE {' AND '.join(where)}
-                ORDER BY RANDOM()
+                ORDER BY COALESCE(s.priority, 50) DESC, RANDOM()
                 LIMIT 1
                 """,
                 tuple(params),
@@ -189,6 +215,7 @@ class QuizStore:
 
     def record(self, question: QuizQuestion, result: QuizResult):
         with self.database.connect() as conn:
+            now = self._now()
             conn.execute(
                 """
                 INSERT INTO quiz_log(
@@ -203,8 +230,18 @@ class QuizStore:
                     result.expected,
                     int(result.score),
                     1 if result.correct else 0,
-                    self._now(),
+                    now,
                 ),
+            )
+            conn.execute(
+                """
+                UPDATE vocabulary_learning_state
+                SET status = 'learning', updated_at = ?
+                WHERE vocabulary_id = ?
+                  AND manual = 0
+                  AND status = 'new'
+                """,
+                (now, int(question.vocabulary_id)),
             )
 
     def stats(self) -> dict:
