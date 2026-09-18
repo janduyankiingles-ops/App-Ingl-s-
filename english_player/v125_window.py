@@ -23,6 +23,7 @@ class MainWindowV125(MainWindowV124):
     def __init__(self):
         self.transcription_audio_combo = None
         self.transcription_model_combo = None
+        self.transcription_coverage_combo = None
         super().__init__()
         self._refresh_transcription_audio_tracks()
 
@@ -52,14 +53,30 @@ class MainWindowV125(MainWindowV124):
             "Small.en é recomendado para séries. Base.en é mais rápido, mas menos preciso."
         )
 
+        self.transcription_coverage_combo = QComboBox()
+        self.transcription_coverage_combo.addItem(
+            "Completa • não perder falas",
+            "complete",
+        )
+        self.transcription_coverage_combo.addItem(
+            "Rápida • corta silêncios",
+            "fast",
+        )
+        self.transcription_coverage_combo.setToolTip(
+            "Completa é recomendada para séries: evita cortes agressivos e revisa "
+            "automaticamente intervalos que ficaram sem legenda."
+        )
+
         toolbar.addWidget(QLabel("🎙 Legendar áudio:"))
         toolbar.addWidget(self.transcription_audio_combo)
         toolbar.addWidget(self.transcription_model_combo)
+        toolbar.addWidget(QLabel("Cobertura:"))
+        toolbar.addWidget(self.transcription_coverage_combo)
 
         self.generator_hint.setText(
             self.generator_hint.text()
-            + " A V1.2.5 permite escolher qual faixa de áudio o Whisper deve transcrever "
-              "e preserva o timeline real do áudio para melhorar a sincronização."
+            + " A V1.2.6 adiciona cobertura completa: escolhe a faixa correta, evita "
+              "cortes agressivos de fala e revisa trechos que ficaram sem legenda."
         )
 
     def _load_video_path(self, path: str, seek_ms: int, autoplay: bool):
@@ -159,16 +176,21 @@ class MainWindowV125(MainWindowV124):
         model_name = str(
             self.transcription_model_combo.currentData() or "small.en"
         )
+        coverage_mode = str(
+            self.transcription_coverage_combo.currentData() or "complete"
+        )
 
         track_label = self.transcription_audio_combo.currentText()
+        coverage_label = self.transcription_coverage_combo.currentText()
         answer = QMessageBox.question(
             self,
             "Gerar legenda inglesa",
             "A legenda antiga deste vídeo será substituída.\n\n"
             f"Faixa escolhida: {track_label}\n"
-            f"Modelo: {model_name}\n\n"
-            "O app vai extrair somente essa faixa e preservar seus timestamps "
-            "antes de enviar o áudio ao Whisper. Continuar?",
+            f"Modelo: {model_name}\n"
+            f"Cobertura: {coverage_label}\n\n"
+            "No modo Completa, o app evita cortes agressivos de fala e faz uma "
+            "segunda análise dos intervalos que ficaram sem legenda. Continuar?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes,
         )
@@ -198,6 +220,7 @@ class MainWindowV125(MainWindowV124):
             self.video_path,
             track_index,
             model_name=model_name,
+            coverage_mode=coverage_mode,
             parent=self,
         )
         self.transcription_worker = worker
