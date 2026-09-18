@@ -113,6 +113,7 @@ class MediaStorage:
 
     def ensure_folders(self):
         (self.root / "Videos").mkdir(parents=True, exist_ok=True)
+        (self.root / "Films").mkdir(parents=True, exist_ok=True)
         (self.root / "Series").mkdir(parents=True, exist_ok=True)
         (self.root / "Music").mkdir(parents=True, exist_ok=True)
 
@@ -127,6 +128,11 @@ class MediaStorage:
 
     def regular_folder(self) -> Path:
         folder = self.root / "Videos"
+        folder.mkdir(parents=True, exist_ok=True)
+        return folder
+
+    def movie_folder(self) -> Path:
+        folder = self.root / "Films"
         folder.mkdir(parents=True, exist_ok=True)
         return folder
 
@@ -250,6 +256,44 @@ class MediaStorage:
 
         return str(target)
 
+    def import_movie(
+        self,
+        source_path: str,
+        *,
+        mode: str | None = None,
+        progress: ProgressCallback | None = None,
+    ) -> str:
+        source = Path(source_path)
+        if not source.exists() or not source.is_file():
+            raise FileNotFoundError(str(source))
+
+        if self.is_managed(source):
+            return str(source)
+
+        import_mode = (mode or self.mode).lower()
+        if import_mode not in {"copy", "move"}:
+            import_mode = "copy"
+
+        target = self._unique_destination(
+            self.movie_folder(),
+            source.name,
+        )
+        self._copy_stream(source, target, progress)
+        self._transfer_sidecars(
+            source,
+            target,
+            import_mode == "move",
+        )
+
+        if import_mode == "move":
+            if target.stat().st_size != source.stat().st_size:
+                raise IOError(
+                    "Não foi possível validar o arquivo antes de mover."
+                )
+            source.unlink()
+
+        return str(target)
+
     def import_music(
         self,
         source_path: str,
@@ -308,6 +352,22 @@ class MediaStorage:
                     """,
                     (new, old),
                 )
+
+            if "movie_library" in tables:
+                existing = conn.execute(
+                    "SELECT 1 FROM movie_library WHERE path = ?",
+                    (new,),
+                ).fetchone()
+                if existing is None:
+                    conn.execute(
+                        "UPDATE movie_library SET path = ? WHERE path = ?",
+                        (new, old),
+                    )
+                else:
+                    conn.execute(
+                        "DELETE FROM movie_library WHERE path = ?",
+                        (old,),
+                    )
 
             if "series_episodes" in tables:
                 existing = conn.execute(
