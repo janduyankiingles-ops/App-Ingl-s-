@@ -291,6 +291,40 @@ class MediaStorage:
                         (old,),
                     )
 
+            if "media_subtitles" in tables:
+                row = conn.execute(
+                    """
+                    SELECT en_path, pt_path, updated_at
+                    FROM media_subtitles
+                    WHERE video_path = ?
+                    """,
+                    (old,),
+                ).fetchone()
+                if row is not None:
+                    existing = conn.execute(
+                        "SELECT 1 FROM media_subtitles WHERE video_path = ?",
+                        (new,),
+                    ).fetchone()
+                    if existing is None:
+                        conn.execute(
+                            """
+                            INSERT INTO media_subtitles(
+                                video_path, en_path, pt_path, updated_at
+                            )
+                            VALUES (?, ?, ?, ?)
+                            """,
+                            (
+                                new,
+                                str(row["en_path"] or ""),
+                                str(row["pt_path"] or ""),
+                                str(row["updated_at"]),
+                            ),
+                        )
+                    conn.execute(
+                        "DELETE FROM media_subtitles WHERE video_path = ?",
+                        (old,),
+                    )
+
             if "video_library" in tables:
                 old_row = conn.execute(
                     """
