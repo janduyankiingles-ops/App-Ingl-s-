@@ -1,12 +1,12 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from english_player.v140_window import MainWindowV140
+from english_player.v200_window import MainWindowV200
 
 
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("English Video Player")
-    window = MainWindowV140()
+    window = MainWindowV200()
     window.resize(1500, 900)
     window.show()
     sys.exit(app.exec())
