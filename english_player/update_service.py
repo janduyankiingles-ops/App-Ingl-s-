@@ -15,7 +15,14 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
+from .backup_service import create_pre_update_backup
 from .data_paths import install_dir, updates_dir
+from .update_security import (
+    normalize_relative_path,
+    validate_file_url,
+    validate_sha256,
+    validate_source_commit,
+)
 
 USER_AGENT = "EnglishVideoPlayer-Updater/1.2"
 TRANSIENT_HTTP_CODES = {408, 425, 429, 500, 502, 503, 504}
@@ -70,25 +77,6 @@ def _fresh_url(url: str, attempt: int) -> str:
     return f"{url}{separator}_evp_cache={stamp}_{attempt}"
 
 
-def _validate_file_url(url: str) -> None:
-    """Impede updates GitHub apontando para branches mutáveis como main/master."""
-    parsed = urllib.parse.urlparse(url)
-    if parsed.netloc.lower() != "raw.githubusercontent.com":
-        return
-
-    parts = [part for part in parsed.path.split("/") if part]
-    # /owner/repo/<ref>/arquivo
-    if len(parts) < 4:
-        raise ValueError("URL de atualização GitHub inválida.")
-
-    ref = parts[2]
-    if not _COMMIT_RE.fullmatch(ref):
-        raise ValueError(
-            "Manifesto inseguro: arquivos do GitHub precisam apontar para um "
-            "commit imutável de 40 caracteres, nunca para main/master."
-        )
-
-
 def fetch_bytes(url: str, timeout: int = 30, retries: int = 4) -> bytes:
     last_error = None
     attempts = max(1, int(retries) + 1)
@@ -140,33 +128,44 @@ def fetch_manifest(manifest_url: str) -> dict:
         raise ValueError("O manifesto não informa a versão.")
     if not isinstance(data.get("files", []), list):
         raise ValueError("Lista de arquivos do manifesto inválida.")
-    return data
+    if not isinstance(data.get("delete", []), list):
+        raise ValueError("Lista de exclusões do manifesto inválida.")
 
+    manifest_format = int(data.get("manifest_format", 1) or 1)
+    validate_source_commit(
+        data.get("source_commit", ""),
+        required=manifest_format >= 2,
+    )
+    return data
 
 def compare_manifest(manifest: dict, manifest_url: str) -> UpdateInfo:
     root = install_dir()
     files: list[UpdateFile] = []
     requirements_changed = False
+    source_commit = validate_source_commit(
+        manifest.get("source_commit", ""),
+        required=int(manifest.get("manifest_format", 1) or 1) >= 2,
+    )
 
     base_url = urllib.parse.urljoin(manifest_url, "./")
+    seen_paths: set[str] = set()
+
     for item in manifest.get("files", []):
-        rel = str(item.get("path", "")).replace("\\", "/").lstrip("/")
-        expected = str(item.get("sha256", "")).lower()
-        rel_parts = Path(rel).parts
-        if (
-            not rel
-            or len(expected) != 64
-            or ".." in rel_parts
-            or Path(rel).is_absolute()
-            or (rel_parts and ":" in rel_parts[0])
-        ):
-            continue
+        if not isinstance(item, dict):
+            raise ValueError("Entrada de arquivo inválida no manifesto.")
+
+        rel = normalize_relative_path(item.get("path", ""))
+        expected = validate_sha256(item.get("sha256", ""))
+
+        if rel in seen_paths:
+            raise ValueError(f"Arquivo duplicado no manifesto: {rel}")
+        seen_paths.add(rel)
 
         url = str(
             item.get("url")
             or urllib.parse.urljoin(base_url, urllib.parse.quote(rel))
         )
-        _validate_file_url(url)
+        validate_file_url(url, source_commit)
 
         local = root / rel
         same = False
@@ -178,14 +177,18 @@ def compare_manifest(manifest: dict, manifest_url: str) -> UpdateInfo:
 
         if not same:
             files.append(UpdateFile(path=rel, sha256=expected, url=url))
-            if rel.replace("\\", "/") == "requirements.txt":
+            if rel == "requirements.txt":
                 requirements_changed = True
 
     deletes = []
-    for rel in manifest.get("delete", []):
-        value = str(rel).replace("\\", "/").lstrip("/")
-        if value:
-            deletes.append(value)
+    for value in manifest.get("delete", []):
+        rel = normalize_relative_path(value)
+        if rel in seen_paths:
+            raise ValueError(
+                f"O manifesto tenta atualizar e excluir o mesmo arquivo: {rel}"
+            )
+        if rel not in deletes:
+            deletes.append(rel)
 
     return UpdateInfo(
         version=str(manifest["version"]),
@@ -260,6 +263,15 @@ class UpdateDownloadWorker(QThread):
             self.progress.emit(0, "Revalidando atualização...")
             self._refresh_info_before_download()
 
+            self.progress.emit(2, "Criando backup de segurança...")
+            try:
+                backup_info = create_pre_update_backup()
+            except Exception as exc:
+                raise RuntimeError(
+                    "Não foi possível criar o backup de segurança antes da "
+                    f"atualização: {exc}"
+                ) from exc
+
             base = updates_dir() / f"v{self.info.version}"
             if base.exists():
                 shutil.rmtree(base, ignore_errors=True)
@@ -272,7 +284,7 @@ class UpdateDownloadWorker(QThread):
             for index, item in enumerate(self.info.files, start=1):
                 pct = int(((index - 1) / total) * 90)
                 self.progress.emit(pct, f"Baixando {item.path}...")
-                _validate_file_url(item.url)
+                validate_file_url(item.url)
 
                 data = fetch_bytes(item.url, timeout=60, retries=4)
                 actual = hashlib.sha256(data).hexdigest().lower()
@@ -301,6 +313,9 @@ class UpdateDownloadWorker(QThread):
                 "requirements_changed": self.info.requirements_changed,
                 "python_executable": sys.executable,
                 "main_file": str(install_dir() / "main.py"),
+                "pre_update_backup": (
+                    backup_info.path if backup_info is not None else ""
+                ),
             }
 
             plan_path = base / "plan.json"
