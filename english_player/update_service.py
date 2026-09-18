@@ -210,10 +210,17 @@ class UpdateCheckWorker(QThread):
         try:
             manifest = fetch_manifest(self.manifest_url)
             info = compare_manifest(manifest, self.manifest_url)
+            version_newer = is_newer(info.version, self.current_version)
+            needs_repair = bool(info.files or info.delete)
             self.completed.emit(
                 {
                     "info": info,
-                    "is_newer": is_newer(info.version, self.current_version),
+                    # A interface antiga usa is_newer para decidir se oferece
+                    # instalação. Também oferece reparo quando a versão é igual
+                    # mas algum arquivo local está faltando ou divergente.
+                    "is_newer": version_newer or needs_repair,
+                    "version_newer": version_newer,
+                    "needs_repair": needs_repair,
                     "current_version": self.current_version,
                 }
             )
