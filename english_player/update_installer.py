@@ -6,21 +6,23 @@ import shutil
 import subprocess
 import sys
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 def _safe_relative(value: str) -> Path:
-    text = str(value or "").replace("\\", "/").lstrip("/")
-    path = Path(text)
-    parts = path.parts
+    text = str(value or "").replace("\\", "/").strip()
+    posix = PurePosixPath(text)
+    parts = posix.parts
     if (
         not text
-        or path.is_absolute()
+        or text.startswith("/")
+        or posix.is_absolute()
         or ".." in parts
+        or any(part in {"", "."} for part in parts)
         or (parts and ":" in parts[0])
     ):
         raise ValueError(f"Caminho de atualização inválido: {value!r}")
-    return path
+    return Path(*parts)
 
 
 def _copy_atomic(source: Path, target: Path) -> None:
