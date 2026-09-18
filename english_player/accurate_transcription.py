@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import math
 import os
 import re
+import sys
 import tempfile
 import wave
+from array import array
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -161,7 +164,7 @@ def _caption_chunks(whisper_segments) -> list[AccurateSubtitleSegment]:
                 previous_end = current[-1][1]
                 gap = start - previous_end
                 duration = end - current[0][0]
-                if gap > 1.0 or len(current) >= 12 or duration > 5.2:
+                if gap > 0.9 or len(current) >= 13 or duration > 5.5:
                     text = _clean_caption("".join(x[2] for x in current))
                     if text:
                         result.append(
@@ -180,8 +183,8 @@ def _caption_chunks(whisper_segments) -> list[AccurateSubtitleSegment]:
             duration = end - current[0][0]
             if (
                 stripped.endswith((".", "?", "!"))
-                or len(current) >= 12
-                or duration >= 4.8
+                or len(current) >= 13
+                or duration >= 5.0
             ):
                 text = _clean_caption("".join(x[2] for x in current))
                 if text:
@@ -218,7 +221,6 @@ def _caption_chunks(whisper_segments) -> list[AccurateSubtitleSegment]:
                 )
             )
 
-    # Evita sobreposição acidental entre dois cards consecutivos.
     fixed: list[AccurateSubtitleSegment] = []
     for segment in result:
         start_ms = segment.start_ms
@@ -249,6 +251,137 @@ def _caption_chunks(whisper_segments) -> list[AccurateSubtitleSegment]:
     return fixed
 
 
+def _wav_duration_ms(path: Path) -> int:
+    with wave.open(str(path), "rb") as wav:
+        rate = max(1, int(wav.getframerate()))
+        frames = int(wav.getnframes())
+    return round((frames / rate) * 1000)
+
+
+def _gap_has_audio(path: Path, start_ms: int, end_ms: int) -> bool:
+    if end_ms - start_ms < 450:
+        return False
+
+    with wave.open(str(path), "rb") as wav:
+        rate = max(1, int(wav.getframerate()))
+        channels = max(1, int(wav.getnchannels()))
+        width = int(wav.getsampwidth())
+        if width != 2:
+            return True
+
+        start_frame = max(0, round((start_ms / 1000) * rate))
+        end_frame = min(
+            int(wav.getnframes()),
+            round((end_ms / 1000) * rate),
+        )
+        if end_frame <= start_frame:
+            return False
+
+        sample_points = 6
+        window_frames = max(1, round(rate * 0.28))
+        loud_windows = 0
+        strongest_peak = 0
+
+        for index in range(sample_points):
+            ratio = (index + 0.5) / sample_points
+            center = start_frame + round((end_frame - start_frame) * ratio)
+            position = max(
+                start_frame,
+                min(end_frame - 1, center - window_frames // 2),
+            )
+            wav.setpos(position)
+            raw = wav.readframes(
+                min(window_frames, end_frame - position)
+            )
+            if not raw:
+                continue
+
+            values = array("h")
+            values.frombytes(raw)
+            if sys.byteorder != "little":
+                values.byteswap()
+            if channels > 1:
+                values = array("h", values[::channels])
+            if not values:
+                continue
+
+            sampled = values[::4] or values
+            squares = sum(int(value) * int(value) for value in sampled)
+            rms = math.sqrt(squares / max(1, len(sampled)))
+            peak = max(abs(int(value)) for value in sampled)
+            strongest_peak = max(strongest_peak, peak)
+
+            if rms >= 150 or peak >= 900:
+                loud_windows += 1
+
+        return loud_windows >= 2 or strongest_peak >= 1800
+
+
+def _write_wav_slice(
+    source_path: Path,
+    target_path: Path,
+    start_ms: int,
+    end_ms: int,
+):
+    with wave.open(str(source_path), "rb") as src:
+        rate = max(1, int(src.getframerate()))
+        channels = int(src.getnchannels())
+        width = int(src.getsampwidth())
+        start_frame = max(0, round((start_ms / 1000) * rate))
+        end_frame = min(
+            int(src.getnframes()),
+            round((end_ms / 1000) * rate),
+        )
+        src.setpos(start_frame)
+        raw = src.readframes(max(0, end_frame - start_frame))
+
+    with wave.open(str(target_path), "wb") as dst:
+        dst.setnchannels(channels)
+        dst.setsampwidth(width)
+        dst.setframerate(rate)
+        dst.writeframes(raw)
+
+
+def _merge_captions(
+    primary: list[AccurateSubtitleSegment],
+    recovered: list[AccurateSubtitleSegment],
+) -> list[AccurateSubtitleSegment]:
+    ordered = sorted(
+        [*primary, *recovered],
+        key=lambda item: (item.start_ms, item.end_ms),
+    )
+    merged: list[AccurateSubtitleSegment] = []
+
+    for segment in ordered:
+        text = _clean_caption(segment.text)
+        if not text:
+            continue
+
+        duplicate = False
+        for existing in merged[-3:]:
+            overlap = min(existing.end_ms, segment.end_ms) - max(
+                existing.start_ms,
+                segment.start_ms,
+            )
+            same_text = existing.text.strip().lower() == text.lower()
+            if same_text and overlap > -250:
+                duplicate = True
+                break
+        if duplicate:
+            continue
+
+        merged.append(
+            AccurateSubtitleSegment(
+                index=len(merged) + 1,
+                start_ms=max(0, int(segment.start_ms)),
+                end_ms=max(int(segment.start_ms) + 250, int(segment.end_ms)),
+                text=text,
+            )
+        )
+
+    return merged
+
+
 class AccurateTranscriptionWorker(QThread):
     progress = Signal(int, str)
     completed = Signal(object, str, str)
@@ -259,12 +392,18 @@ class AccurateTranscriptionWorker(QThread):
         video_path: str,
         audio_track_position: int,
         model_name: str = "small.en",
+        coverage_mode: str = "complete",
         parent=None,
     ):
         super().__init__(parent)
         self.video_path = str(video_path)
         self.audio_track_position = max(0, int(audio_track_position))
         self.model_name = str(model_name or "small.en")
+        self.coverage_mode = (
+            "fast"
+            if str(coverage_mode or "").lower() == "fast"
+            else "complete"
+        )
         self._cancel_requested = False
 
     def cancel(self):
@@ -310,22 +449,47 @@ class AccurateTranscriptionWorker(QThread):
             if self._cancel_requested:
                 return
 
+            mode_text = (
+                "com cobertura completa"
+                if self.coverage_mode == "complete"
+                else "no modo rápido"
+            )
             self.progress.emit(
                 30,
-                "Transcrevendo somente a faixa selecionada em inglês...",
+                f"Transcrevendo a faixa inglesa {mode_text}...",
             )
+
+            transcribe_kwargs = {
+                "language": "en",
+                "beam_size": 5,
+                "word_timestamps": True,
+                "condition_on_previous_text": True,
+            }
+
+            if self.coverage_mode == "complete":
+                transcribe_kwargs.update(
+                    {
+                        "vad_filter": False,
+                        "no_speech_threshold": 0.90,
+                        "log_prob_threshold": -1.20,
+                    }
+                )
+            else:
+                transcribe_kwargs.update(
+                    {
+                        "vad_filter": True,
+                        "vad_parameters": {
+                            "threshold": 0.35,
+                            "min_speech_duration_ms": 120,
+                            "min_silence_duration_ms": 280,
+                            "speech_pad_ms": 220,
+                        },
+                    }
+                )
 
             iterator, info = model.transcribe(
                 str(temp_path),
-                language="en",
-                beam_size=5,
-                word_timestamps=True,
-                vad_filter=True,
-                vad_parameters={
-                    "min_silence_duration_ms": 320,
-                    "speech_pad_ms": 180,
-                },
-                condition_on_previous_text=True,
+                **transcribe_kwargs,
             )
 
             collected = []
@@ -339,9 +503,9 @@ class AccurateTranscriptionWorker(QThread):
                     return
                 collected.append(segment)
                 end = float(getattr(segment, "end", 0.0) or 0.0)
-                pct = 30 + round(min(1.0, end / duration) * 64)
+                pct = 30 + round(min(1.0, end / duration) * 60)
                 self.progress.emit(
-                    min(94, pct),
+                    min(90, pct),
                     f"Transcrevendo inglês... {min(100, round(end / duration * 100))}%",
                 )
 
@@ -350,6 +514,15 @@ class AccurateTranscriptionWorker(QThread):
                 raise RuntimeError(
                     "O Whisper não encontrou fala suficiente na faixa selecionada."
                 )
+
+            if self.coverage_mode == "complete":
+                recovered = self._recover_missing_gaps(
+                    model,
+                    Path(temp_path),
+                    captions,
+                )
+                if recovered:
+                    captions = _merge_captions(captions, recovered)
 
             output_path = self._choose_output_path(video)
             _write_srt(captions, output_path)
@@ -372,6 +545,100 @@ class AccurateTranscriptionWorker(QThread):
                     Path(temp_path).unlink(missing_ok=True)
                 except Exception:
                     pass
+
+    def _recover_missing_gaps(
+        self,
+        model,
+        wav_path: Path,
+        captions: list[AccurateSubtitleSegment],
+    ) -> list[AccurateSubtitleSegment]:
+        duration_ms = _wav_duration_ms(wav_path)
+        if duration_ms <= 0:
+            return []
+
+        boundaries = []
+        cursor = 0
+        for caption in captions:
+            if caption.start_ms - cursor >= 1200:
+                boundaries.append((cursor, caption.start_ms))
+            cursor = max(cursor, caption.end_ms)
+        if duration_ms - cursor >= 1200:
+            boundaries.append((cursor, duration_ms))
+
+        recovery_chunks = []
+        for start_ms, end_ms in boundaries:
+            cursor_ms = start_ms
+            while cursor_ms < end_ms:
+                chunk_end = min(end_ms, cursor_ms + 18_000)
+                if chunk_end - cursor_ms >= 900:
+                    recovery_chunks.append((cursor_ms, chunk_end))
+                cursor_ms = chunk_end
+
+        if not recovery_chunks:
+            return []
+
+        recovered: list[AccurateSubtitleSegment] = []
+        total = len(recovery_chunks)
+
+        for position, (start_ms, end_ms) in enumerate(
+            recovery_chunks,
+            start=1,
+        ):
+            if self._cancel_requested:
+                return recovered
+
+            if not _gap_has_audio(wav_path, start_ms, end_ms):
+                continue
+
+            self.progress.emit(
+                90 + min(8, round((position / total) * 8)),
+                f"Revisando trecho sem legenda {position}/{total}...",
+            )
+
+            gap_path = wav_path.with_name(
+                f"{wav_path.stem}_gap_{position}.wav"
+            )
+            try:
+                _write_wav_slice(
+                    wav_path,
+                    gap_path,
+                    start_ms,
+                    end_ms,
+                )
+
+                iterator, _info = model.transcribe(
+                    str(gap_path),
+                    language="en",
+                    beam_size=5,
+                    word_timestamps=True,
+                    vad_filter=False,
+                    condition_on_previous_text=False,
+                    no_speech_threshold=0.78,
+                    log_prob_threshold=-1.0,
+                )
+                local = _caption_chunks(list(iterator))
+
+                for segment in local:
+                    text = _clean_caption(segment.text)
+                    if len(text.replace(" ", "")) < 2:
+                        continue
+                    recovered.append(
+                        AccurateSubtitleSegment(
+                            index=len(recovered) + 1,
+                            start_ms=start_ms + segment.start_ms,
+                            end_ms=start_ms + segment.end_ms,
+                            text=text,
+                        )
+                    )
+            except Exception:
+                continue
+            finally:
+                try:
+                    gap_path.unlink(missing_ok=True)
+                except Exception:
+                    pass
+
+        return recovered
 
     def _extract_selected_track(self, video: Path, output_wav: Path):
         import av
