@@ -4,6 +4,7 @@ import re
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QCheckBox,
     QComboBox,
     QFrame,
@@ -79,6 +80,7 @@ class MainWindowV135(MainWindowV132):
         self.ui_subtitle = None
         self.ui_search = None
         self.ui_update_button = None
+        self.ui_command_panel = None
         self._toolbar_widgets = []
         super().__init__()
         self._sync_navigation(self.tabs.currentIndex())
@@ -300,6 +302,7 @@ class MainWindowV135(MainWindowV132):
 
         # Structured command bar only for the common video tools.
         commands = self._build_command_panel()
+        self.ui_command_panel = commands
         if commands is not None:
             main_layout.addWidget(commands)
 
@@ -511,6 +514,14 @@ class MainWindowV135(MainWindowV132):
                 break
         self.ui_subtitle.setText(description)
 
+        # Video-generation controls belong only to the main study screen.
+        if self.ui_command_panel is not None:
+            show_commands = (
+                "assistir" in key
+                or "estudar" in key
+            )
+            self.ui_command_panel.setVisible(show_commands)
+
     def _filter_navigation(self, value: str):
         query = str(value or "").strip().lower()
         for row in range(self.ui_nav.count()):
@@ -572,5 +583,5 @@ class MainWindowV135(MainWindowV132):
             table = getattr(self, table_name, None)
             if table is not None:
                 table.setHorizontalScrollMode(
-                    table.ScrollPerPixel
+                    QAbstractItemView.ScrollPerPixel
                 )
