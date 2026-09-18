@@ -542,6 +542,17 @@ class MainWindowV135(MainWindowV132):
     # Width fixes / visual normalization.
     # ------------------------------------------------------------------
 
+    def _sync_player_button_text(self, state):
+        player = getattr(self, "player_widget", None)
+        if player is None:
+            return
+        try:
+            from PySide6.QtMultimedia import QMediaPlayer
+            playing = state == QMediaPlayer.PlayingState
+        except Exception:
+            playing = False
+        player.play_button.setText("Pause" if playing else "Play")
+
     def _normalize_key_controls(self):
         # Remove decorative emoji prefixes from a few high-frequency buttons
         # where Windows renders them inconsistently.
@@ -550,6 +561,13 @@ class MainWindowV135(MainWindowV132):
             "music_remove_button": "Remover",
             "music_generate_button": "Gerar letra EN",
             "music_translate_button": "Traduzir PT",
+            "music_play_button": "Play",
+            "music_stop_button": "Stop",
+            "music_repeat_line_button": "Repetir linha",
+            "music_large_clip_button": "Clipe maior",
+            "music_line_button": "Ouvir linha",
+            "music_check_button": "Corrigir",
+            "music_next_button": "Próxima",
             "today_refresh_button": "Recalcular plano",
             "today_progress_button": "Ver progresso",
             "review_audio_button": "Ouvir",
@@ -569,6 +587,9 @@ class MainWindowV135(MainWindowV132):
             player.play_button.setText("Play")
             player.back_button.setText("-5 s")
             player.forward_button.setText("+5 s")
+            player.player.playbackStateChanged.connect(
+                self._sync_player_button_text
+            )
             player.play_button.setMinimumWidth(58)
             player.back_button.setMinimumWidth(58)
             player.forward_button.setMinimumWidth(58)
