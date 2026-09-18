@@ -71,6 +71,17 @@ class ReviewStore:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_review_log_time ON review_log(reviewed_at)"
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS vocabulary_learning_state (
+                    vocabulary_id INTEGER PRIMARY KEY,
+                    status TEXT NOT NULL DEFAULT 'new',
+                    priority INTEGER NOT NULL DEFAULT 50,
+                    manual INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
 
     def sync_vocabulary(self):
         now = self._iso(self._now())
@@ -91,6 +102,22 @@ class ReviewStore:
             conn.execute(
                 """
                 DELETE FROM review_log
+                WHERE vocabulary_id NOT IN (SELECT id FROM vocabulary)
+                """
+            )
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO vocabulary_learning_state(
+                    vocabulary_id, status, priority, manual, updated_at
+                )
+                SELECT id, 'new', 50, 0, ?
+                FROM vocabulary
+                """,
+                (now,),
+            )
+            conn.execute(
+                """
+                DELETE FROM vocabulary_learning_state
                 WHERE vocabulary_id NOT IN (SELECT id FROM vocabulary)
                 """
             )
@@ -176,8 +203,15 @@ class ReviewStore:
                     r.interval_days, r.ease, r.repetitions, r.lapses
                 FROM review_cards r
                 JOIN vocabulary v ON v.id = r.vocabulary_id
+                LEFT JOIN vocabulary_learning_state s
+                  ON s.vocabulary_id = v.id
                 WHERE r.due_at <= ?
-                ORDER BY r.due_at ASC, r.repetitions ASC, r.vocabulary_id ASC
+                  AND COALESCE(s.status, 'new') NOT IN ('known', 'ignore')
+                ORDER BY
+                    COALESCE(s.priority, 50) DESC,
+                    r.due_at ASC,
+                    r.repetitions ASC,
+                    r.vocabulary_id ASC
                 LIMIT ?
                 """,
                 (now, max(1, int(limit))),
@@ -206,11 +240,26 @@ class ReviewStore:
         today = self._now().strftime("%Y-%m-%d")
         with self.database.connect() as conn:
             total = int(
-                conn.execute("SELECT COUNT(*) FROM review_cards").fetchone()[0]
+                conn.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM review_cards r
+                    LEFT JOIN vocabulary_learning_state s
+                      ON s.vocabulary_id = r.vocabulary_id
+                    WHERE COALESCE(s.status, 'new') NOT IN ('known', 'ignore')
+                    """
+                ).fetchone()[0]
             )
             due = int(
                 conn.execute(
-                    "SELECT COUNT(*) FROM review_cards WHERE due_at <= ?",
+                    """
+                    SELECT COUNT(*)
+                    FROM review_cards r
+                    LEFT JOIN vocabulary_learning_state s
+                      ON s.vocabulary_id = r.vocabulary_id
+                    WHERE r.due_at <= ?
+                      AND COALESCE(s.status, 'new') NOT IN ('known', 'ignore')
+                    """,
                     (now,),
                 ).fetchone()[0]
             )
@@ -323,6 +372,16 @@ class ReviewStore:
                     int(old_interval),
                     int(new_interval),
                 ),
+            )
+            conn.execute(
+                """
+                UPDATE vocabulary_learning_state
+                SET status = 'learning', updated_at = ?
+                WHERE vocabulary_id = ?
+                  AND manual = 0
+                  AND status = 'new'
+                """,
+                (self._iso(now), int(vocabulary_id)),
             )
 
         return self.card_by_id(vocabulary_id)
