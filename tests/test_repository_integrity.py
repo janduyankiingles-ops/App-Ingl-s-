@@ -34,7 +34,7 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV230", content)
+        self.assertIn("MainWindowV231", content)
 
 
 if __name__ == "__main__":
