@@ -120,9 +120,9 @@ class MainWindowV100(MainWindowV092):
 
         week_group = QGroupBox("Últimos 7 dias")
         week_layout = QVBoxLayout(week_group)
-        self.progress_week_table = QTableWidget(0, 5)
+        self.progress_week_table = QTableWidget(0, 7)
         self.progress_week_table.setHorizontalHeaderLabels(
-            ["Dia", "Revisões", "Escuta", "Quiz", "Total"]
+            ["Dia", "Revisões", "Escuta", "Quiz", "Frases", "Música", "Total"]
         )
         self.progress_week_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.progress_week_table.verticalHeader().setVisible(False)
@@ -229,6 +229,8 @@ class MainWindowV100(MainWindowV092):
                 str(day["reviews"]),
                 str(day["listening"]),
                 str(day["quiz"]),
+                str(day.get("sentences", 0)),
+                str(day.get("music", 0)),
                 str(day["total"]),
             )
             for column, value in enumerate(values):
@@ -262,11 +264,30 @@ class MainWindowV100(MainWindowV092):
             cell.setTextAlignment(Qt.AlignCenter)
             self.progress_weak_table.setItem(0, 0, cell)
 
+        extras = []
+        if int(data.get("today_text_quiz", 0)):
+            extras.append(
+                f"{data['today_text_quiz']} questão(ões) de texto"
+            )
+        if int(data.get("today_sentences", 0)):
+            extras.append(
+                f"{data['today_sentences']} treino(s) de frases"
+            )
+        if int(data.get("today_music", 0)):
+            extras.append(
+                f"{data['today_music']} exercício(s) de música"
+            )
+        extra_text = (
+            "  •  Prática integrada hoje: " + ", ".join(extras) + "."
+            if extras
+            else ""
+        )
         self.progress_detail_label.setText(
             f"Melhor sequência: {data['best_streak']} dias  •  "
             f"Vídeos na biblioteca: {data['videos']}  •  "
             f"Cards vencidos agora: {data['due']}  •  "
-            f"Acertos no Quiz hoje: {data['quiz_correct']}.  "
+            f"Acertos no Quiz hoje: {data['quiz_correct']}."
+            f"{extra_text}  "
             "“Dominadas” = cards com pelo menos 3 revisões e intervalo de 21 dias ou mais."
         )
 
