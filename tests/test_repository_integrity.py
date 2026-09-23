@@ -190,5 +190,12 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("table.rowCount() <= 200", global_layout)
 
 
+    def test_v293_repair_writes_real_newline(self):
+        repair = (ROOT / "repair_v293.py").read_text(encoding="utf-8")
+        self.assertIn("write_text", repair)
+        self.assertIn('__version__ = "2.9.3"', repair)
+        self.assertNotIn('__version__ = "2.9.3"\\\\n', repair)
+
+
 if __name__ == "__main__":
     unittest.main()
