@@ -36,6 +36,63 @@ def default_database_path() -> Path:
     return app_data_dir() / "english_video_player.sqlite3"
 
 
+def _looks_like_app_database(path: Path) -> bool:
+    if not path.exists() or not path.is_file():
+        return False
+    try:
+        import sqlite3
+        with sqlite3.connect(str(path)) as conn:
+            tables = {
+                str(row[0])
+                for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+        return bool(tables & {"vocabulary", "video_library", "review_cards"})
+    except Exception:
+        return False
+
+
+def database_path() -> Path:
+    """Compatibilidade com o núcleo histórico do aplicativo.
+
+    Prefere um banco já existente do English Video Player para não perder
+    progresso ao atualizar. Só cria/usa o caminho padrão quando nenhum banco
+    anterior reconhecível é encontrado.
+    """
+    for candidate in candidate_database_paths():
+        if _looks_like_app_database(candidate):
+            return candidate
+
+    suffixes = {".db", ".sqlite", ".sqlite3"}
+    roots = (app_data_dir(), install_dir(), Path.cwd())
+    seen: set[str] = set()
+    for root in roots:
+        if not root.exists() or not root.is_dir():
+            continue
+        try:
+            candidates = [
+                item
+                for item in root.rglob("*")
+                if item.is_file() and item.suffix.lower() in suffixes
+            ]
+        except OSError:
+            continue
+        candidates.sort(
+            key=lambda item: item.stat().st_mtime if item.exists() else 0,
+            reverse=True,
+        )
+        for candidate in candidates[:80]:
+            key = str(candidate.resolve())
+            if key in seen:
+                continue
+            seen.add(key)
+            if _looks_like_app_database(candidate):
+                return candidate
+
+    return default_database_path()
+
+
 def candidate_database_paths() -> list[Path]:
     """Candidatos comuns para instalações antigas e a instalação limpa V2.2+."""
     roots = [app_data_dir(), install_dir(), Path.cwd()]
