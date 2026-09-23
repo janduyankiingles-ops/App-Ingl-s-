@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QButtonGroup,
     QComboBox,
     QFileDialog,
@@ -239,9 +240,9 @@ class MainWindowV230(MainWindowV220):
         self.text_vocab_table.setHorizontalHeaderLabels(
             ["Termo", "Ocorrências", "Categoria", "Sentido", "Exemplo do texto"]
         )
-        self.text_vocab_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.text_vocab_table.setSelectionMode(QTableWidget.SingleSelection)
-        self.text_vocab_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.text_vocab_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.text_vocab_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.text_vocab_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.text_vocab_table.verticalHeader().setVisible(False)
         self.text_vocab_table.horizontalHeader().setStretchLastSection(True)
         self.text_vocab_table.setColumnWidth(0, 170)
@@ -752,7 +753,7 @@ class MainWindowV230(MainWindowV220):
         cursor = self.text_source_edit.textCursor()
         word = cursor.selectedText().strip()
         if not word:
-            cursor.select(QTextCursor.WordUnderCursor)
+            cursor.select(QTextCursor.SelectionType.WordUnderCursor)
             word = cursor.selectedText().strip()
         word = re.sub(r"^[^A-Za-z]+|[^A-Za-z'’]+$", "", word)
         if not word:
