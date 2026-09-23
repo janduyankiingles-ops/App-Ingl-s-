@@ -86,6 +86,8 @@ class MainWindowV230(MainWindowV220):
         self.text_translation_worker = None
         self.text_dictionary_workers: list[ContextDictionaryWorker] = []
         self.text_dictionary_generation = 0
+        self.text_dictionary_last_result = None
+        self._text_answered_questions: set[int] = set()
         super().__init__()
         self._reload_text_documents()
 
@@ -462,6 +464,8 @@ class MainWindowV230(MainWindowV220):
         self.text_document_id = None
         self.text_analysis = {}
         self.text_questions = []
+        self._text_answered_questions.clear()
+        self.text_dictionary_last_result = None
         self.text_title_edit.clear()
         self.text_source_edit.clear()
         self.text_translation_edit.clear()
@@ -516,6 +520,7 @@ class MainWindowV230(MainWindowV220):
             source,
             self.text_analysis,
         )
+        self._text_answered_questions.clear()
         self._render_text_map()
         self._render_text_vocabulary()
         self._render_text_questions()
@@ -727,6 +732,32 @@ class MainWindowV230(MainWindowV220):
             )
             return
         correct = selected == question.correct_index
+
+        question_index = self.text_question_combo.currentIndex()
+        if (
+            question_index >= 0
+            and question_index not in self._text_answered_questions
+            and self.text_store is not None
+        ):
+            try:
+                self.text_store.record_question_attempt(
+                    document_id=self.text_document_id,
+                    prompt=question.prompt,
+                    selected_answer=question.options[selected],
+                    expected_answer=question.options[question.correct_index],
+                    correct=correct,
+                )
+                self._text_answered_questions.add(question_index)
+                if hasattr(self, "_refresh_progress"):
+                    self._refresh_progress()
+                if hasattr(self, "_refresh_today_plan"):
+                    self._refresh_today_plan()
+            except Exception as exc:
+                self.statusBar().showMessage(
+                    f"Não foi possível registrar a questão: {exc}",
+                    4500,
+                )
+
         prefix = "Correto." if correct else (
             "Incorreto. Resposta: "
             + question.options[question.correct_index]
@@ -845,6 +876,7 @@ class MainWindowV230(MainWindowV220):
         worker.start()
 
     def _render_text_dictionary(self, result: DictionaryResult):
+        self.text_dictionary_last_result = result
         heading = result.context_translation or result.word
         status = []
         if result.phonetic:
@@ -911,7 +943,19 @@ class MainWindowV230(MainWindowV220):
                 "Selecione uma palavra no texto antes de salvar.",
             )
             return
-        self._save_text_vocab_item(word, sentence_en, sentence_pt)
+        meaning = ""
+        result = self.text_dictionary_last_result
+        if (
+            result is not None
+            and str(result.word or "").strip().lower() == word.strip().lower()
+        ):
+            meaning = str(result.context_translation or "").strip()
+        self._save_text_vocab_item(
+            word,
+            sentence_en,
+            sentence_pt,
+            meaning=meaning,
+        )
 
     def _save_vocab_row(self):
         row = self.text_vocab_table.currentRow()
@@ -923,13 +967,22 @@ class MainWindowV230(MainWindowV220):
             return
         sentence_en = sentence.text() if sentence else self._term_example(term.text())
         sentence_pt = self._translated_sentence_for(sentence_en)
-        self._save_text_vocab_item(term.text(), sentence_en, sentence_pt)
+        meaning_item = self.text_vocab_table.item(row, 3)
+        meaning = meaning_item.text().strip() if meaning_item else ""
+        self._save_text_vocab_item(
+            term.text(),
+            sentence_en,
+            sentence_pt,
+            meaning=meaning,
+        )
 
     def _save_text_vocab_item(
         self,
         word: str,
         sentence_en: str,
         sentence_pt: str,
+        *,
+        meaning: str = "",
     ):
         clean = str(word or "").strip()
         if not clean:
@@ -949,16 +1002,50 @@ class MainWindowV230(MainWindowV220):
                 ),
             )
 
+        vocabulary_id = None
+        with self.database.connect() as conn:
+            row = conn.execute(
+                """
+                SELECT id
+                FROM vocabulary
+                WHERE word = ?
+                  AND sentence_en = ?
+                  AND video_path = ''
+                  AND timestamp_ms = 0
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (
+                    clean,
+                    str(sentence_en or "").strip(),
+                ),
+            ).fetchone()
+            if row is not None:
+                vocabulary_id = int(row["id"])
+
         review_store = getattr(self, "review_store", None)
         if review_store is not None:
             try:
                 review_store.sync_vocabulary()
+                if vocabulary_id is not None and str(meaning or "").strip():
+                    review_store.set_meaning_for_item(
+                        vocabulary_id,
+                        str(meaning).strip(),
+                    )
             except Exception:
                 pass
+
         try:
             self._refresh_vocabulary()
         except Exception:
             pass
+
+        if hasattr(self, "_smart_vocabulary_changed"):
+            try:
+                self._smart_vocabulary_changed()
+            except Exception:
+                pass
+
         self.statusBar().showMessage(
             f"“{clean}” salvo no vocabulário e disponível para revisão.",
             3500,
