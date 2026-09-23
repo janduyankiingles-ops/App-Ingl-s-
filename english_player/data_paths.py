@@ -20,6 +20,65 @@ def app_data_dir() -> Path:
     return root
 
 
+
+def _existing_named_file(names: tuple[str, ...]) -> Path | None:
+    """Localiza arquivos de configuração legados sem alterar a instalação."""
+    roots = (install_dir(), app_data_dir(), Path.cwd())
+    seen: set[str] = set()
+    for root in roots:
+        for name in names:
+            path = root / name
+            key = str(path.resolve()) if path.exists() else str(path.absolute())
+            if key in seen:
+                continue
+            seen.add(key)
+            if path.exists() and path.is_file():
+                return path
+    return None
+
+
+def settings_path() -> Path:
+    """API legada usada por english_player.settings.
+
+    Mantém um settings.json já existente na pasta antiga quando ele existe;
+    caso contrário usa a pasta de dados do usuário.
+    """
+    existing = _existing_named_file(
+        ("settings.json", "english_video_player_settings.json")
+    )
+    return existing or (app_data_dir() / "settings.json")
+
+
+def cache_dir() -> Path:
+    path = app_data_dir() / "cache"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def temp_dir() -> Path:
+    path = app_data_dir() / "temp"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def logs_dir() -> Path:
+    path = app_data_dir() / "logs"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def pronunciation_cache_dir() -> Path:
+    path = cache_dir() / "pronunciation"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def generated_subtitles_dir() -> Path:
+    path = app_data_dir() / "generated_subtitles"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def updates_dir() -> Path:
     path = app_data_dir() / "updates"
     path.mkdir(parents=True, exist_ok=True)
