@@ -716,4 +716,4 @@ QLabel#pathTitle {
 QLabel#pathText {
     color: #7F8C9D;
     font-size: 11px;
-}
+}\n"""\n
