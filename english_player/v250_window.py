@@ -18,6 +18,30 @@ from .v240_window import MainWindowV240, _clean_decoration
 class MainWindowV250(MainWindowV240):
     """V2.5.0: interface simplificada com divulgação progressiva."""
 
+    PAGE_DESCRIPTIONS = {
+        **MainWindowV240.PAGE_DESCRIPTIONS,
+        "hoje": "Comece por aqui. O app organiza o próximo passo do seu estudo.",
+        "estudar": "Abra um vídeo e estude pelas legendas e pelo contexto.",
+        "assistir": "Abra um vídeo e estude pelas legendas e pelo contexto.",
+        "texto": "Cole um texto e transforme a leitura em vocabulário e questões.",
+        "música": "Use músicas para treinar compreensão, letra e listening.",
+        "musica": "Use músicas para treinar compreensão, letra e listening.",
+        "biblioteca": "Encontre rapidamente os vídeos que você já adicionou.",
+        "séries": "Continue episódios e acompanhe seu progresso nas séries.",
+        "series": "Continue episódios e acompanhe seu progresso nas séries.",
+        "filmes": "Organize filmes e continue de onde parou.",
+        "revisão": "Revise palavras no momento certo com repetição espaçada.",
+        "revisao": "Revise palavras no momento certo com repetição espaçada.",
+        "vocabulário": "Veja e organize as palavras que você salvou.",
+        "vocabulario": "Veja e organize as palavras que você salvou.",
+        "frases": "Pratique frases reais que você encontrou nos conteúdos.",
+        "escuta": "Treine compreensão auditiva e ditado.",
+        "quiz": "Teste o que você aprendeu com perguntas rápidas.",
+        "progresso": "Veja sua evolução e onde precisa concentrar o estudo.",
+        "configurações": "Cuide de backup, integridade e opções do aplicativo.",
+        "configuracoes": "Cuide de backup, integridade e opções do aplicativo.",
+    }
+
     NAV_GROUPS = (
         ("Início", ("hoje",)),
         ("Estudar", ("estudar", "assistir", "texto", "música", "musica")),
@@ -79,6 +103,7 @@ class MainWindowV250(MainWindowV240):
         self._apply_v250_simplification()
 
     def _apply_v250_simplification(self):
+        self._open_home_page()
         self._simplify_header()
         self._simplify_study_commands()
         self._hide_redundant_page_titles()
@@ -86,6 +111,14 @@ class MainWindowV250(MainWindowV240):
         self._clarify_common_actions()
         self._populate_navigation()
         self._sync_navigation(self.tabs.currentIndex())
+
+    def _open_home_page(self):
+        today = getattr(self, "today_tab", None)
+        if today is None:
+            return
+        index = self.tabs.indexOf(today)
+        if index >= 0:
+            self.tabs.setCurrentIndex(index)
 
     # ------------------------------------------------------------------
     # Header: title + explanation only. Search added cognitive load here.
@@ -334,10 +367,10 @@ class MainWindowV250(MainWindowV240):
             header.setData(Qt.UserRole + 11, group)
             header.setToolTip(self.GROUP_DESCRIPTIONS.get(group, ""))
             header.setFlags(
-                Qt.ItemIsEnabled | Qt.ItemIsSelectable
+                Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
             )
             header_font = QFont()
-            header_font.setWeight(QFont.DemiBold)
+            header_font.setWeight(QFont.Weight.DemiBold)
             header.setFont(header_font)
             header.setForeground(QColor("#8B98A9"))
             nav.addItem(header)
@@ -461,9 +494,16 @@ class MainWindowV250(MainWindowV240):
             "Texto para Concurso",
             "Configurações e segurança",
         }
+        verbose_prefixes = (
+            "Cole um texto em inglês",
+            "A V2.2 concentra aqui",
+        )
         for label in self.findChildren(QLabel):
             text = _clean_decoration(label.text()).strip()
-            if text in redundant and label is not getattr(self, "ui_title", None):
+            if (
+                text in redundant
+                or any(text.startswith(prefix) for prefix in verbose_prefixes)
+            ) and label is not getattr(self, "ui_title", None):
                 label.hide()
                 label.setMaximumHeight(0)
 
