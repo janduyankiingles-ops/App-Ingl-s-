@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV260", content)
+        self.assertIn("MainWindowV270", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v260_window.py"
+        source = PACKAGE / "v270_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV260", content)
-        self.assertIn("_build_task_hubs", content)
+        self.assertIn("class MainWindowV270", content)
+        self.assertIn("_rebuild_hubs", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -86,6 +86,32 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("_build_practice_hub", content)
         self.assertIn("_build_content_hub", content)
         self.assertIn("_install_back_button", content)
+
+
+    def test_v270_has_duolingo_like_learning_path(self):
+        content = (PACKAGE / "v270_window.py").read_text(encoding="utf-8")
+        self.assertIn("class LearningPathWidget", content)
+        self.assertIn("pathNodeCurrent", content)
+        self.assertIn("pathNodeDone", content)
+        self.assertIn("pathNodeFuture", content)
+        self.assertIn("PRÓXIMO PASSO", content)
+        self.assertIn("_build_progress_hub_v270", content)
+        self.assertIn("_build_settings_hub_v270", content)
+
+    def test_v270_has_only_five_primary_destinations(self):
+        content = (PACKAGE / "v270_window.py").read_text(encoding="utf-8")
+        for route in (
+            '"learn"',
+            '"practice"',
+            '"content"',
+            '"progress"',
+            '"settings"',
+        ):
+            self.assertIn(route, content)
+        theme = (PACKAGE / "v270_theme.py").read_text(encoding="utf-8")
+        self.assertIn("FRIENDLY_STYLE", theme)
+        self.assertIn("#FFFFFF", theme)
+        self.assertIn("pathNodeCurrent", theme)
 
 
 if __name__ == "__main__":
