@@ -171,5 +171,12 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("ResizeToContents", window)
 
 
+    def test_v291_no_tuple_findchildren(self):
+        window = (PACKAGE / "v290_window.py").read_text(encoding="utf-8")
+        self.assertNotIn("findChildren((", window)
+        self.assertIn("findChildren(QTextBrowser)", window)
+        self.assertIn("findChildren(QTextEdit)", window)
+
+
 if __name__ == "__main__":
     unittest.main()
