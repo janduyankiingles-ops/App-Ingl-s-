@@ -323,6 +323,33 @@ class MediaStorage:
 
         return str(target)
 
+    @staticmethod
+    def _relinked_sidecar_path(
+        old_media: str,
+        new_media: str,
+        subtitle_path: str,
+    ) -> str:
+        value = str(subtitle_path or "").strip()
+        if not value:
+            return ""
+
+        saved = Path(value)
+        old = Path(old_media)
+        new = Path(new_media)
+
+        try:
+            same_folder = saved.parent.resolve() == old.parent.resolve()
+        except Exception:
+            same_folder = saved.parent == old.parent
+
+        if same_folder and saved.name.startswith(old.stem):
+            suffix = saved.name[len(old.stem):]
+            candidate = new.with_name(new.stem + suffix)
+            if candidate.exists() and candidate.is_file():
+                return str(candidate)
+
+        return value
+
     def relink_database_path(self, old_path: str, new_path: str):
         old = str(old_path)
         new = str(new_path)
@@ -409,6 +436,16 @@ class MediaStorage:
                         "SELECT 1 FROM media_subtitles WHERE video_path = ?",
                         (new,),
                     ).fetchone()
+                    en_path = self._relinked_sidecar_path(
+                        old,
+                        new,
+                        str(row["en_path"] or ""),
+                    )
+                    pt_path = self._relinked_sidecar_path(
+                        old,
+                        new,
+                        str(row["pt_path"] or ""),
+                    )
                     if existing is None:
                         conn.execute(
                             """
@@ -419,9 +456,33 @@ class MediaStorage:
                             """,
                             (
                                 new,
-                                str(row["en_path"] or ""),
-                                str(row["pt_path"] or ""),
+                                en_path,
+                                pt_path,
                                 str(row["updated_at"]),
+                            ),
+                        )
+                    else:
+                        conn.execute(
+                            """
+                            UPDATE media_subtitles
+                            SET en_path = CASE
+                                    WHEN ? <> '' THEN ?
+                                    ELSE en_path
+                                END,
+                                pt_path = CASE
+                                    WHEN ? <> '' THEN ?
+                                    ELSE pt_path
+                                END,
+                                updated_at = ?
+                            WHERE video_path = ?
+                            """,
+                            (
+                                en_path,
+                                en_path,
+                                pt_path,
+                                pt_path,
+                                str(row["updated_at"]),
+                                new,
                             ),
                         )
                     conn.execute(
