@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV240", content)
+        self.assertIn("MainWindowV250", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v240_window.py"
+        source = PACKAGE / "v250_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV240", content)
-        self.assertIn("_apply_v240_design", content)
+        self.assertIn("class MainWindowV250", content)
+        self.assertIn("_apply_v250_simplification", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -54,6 +54,21 @@ class RepositoryIntegrityTests(unittest.TestCase):
             "playerCard",
         ):
             self.assertIn(role, content)
+
+
+    def test_simplified_navigation_groups(self):
+        content = (PACKAGE / "v250_window.py").read_text(encoding="utf-8")
+        for label in (
+            '"Início"',
+            '"Estudar"',
+            '"Conteúdo"',
+            '"Treinar"',
+            '"Progresso"',
+            '"Configurações"',
+        ):
+            self.assertIn(label, content)
+        self.assertIn("Mais opções", content)
+        self.assertIn("_hide_redundant_page_titles", content)
 
 
 if __name__ == "__main__":
