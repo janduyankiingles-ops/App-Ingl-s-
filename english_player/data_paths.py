@@ -173,3 +173,32 @@ def candidate_database_paths() -> list[Path]:
                 seen.add(key)
                 result.append(path)
     return result
+
+
+# Compatibilidade defensiva com módulos históricos que possam importar
+# helpers de caminho removidos de versões antigas. Nomes *_dir retornam
+# uma pasta persistente em LOCALAPPDATA/EnglishVideoPlayer; nomes *_path
+# retornam um arquivo persistente com nome equivalente. Helpers conhecidos
+# acima continuam tendo precedência e semântica específica.
+def __getattr__(name: str):
+    if name.endswith("_dir"):
+        folder = name[:-4].replace("_", "-") or "data"
+
+        def legacy_dir() -> Path:
+            path = app_data_dir() / folder
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+
+        return legacy_dir
+
+    if name.endswith("_path"):
+        stem = name[:-5].replace("_", "-") or "data"
+
+        def legacy_path() -> Path:
+            return app_data_dir() / stem
+
+        return legacy_path
+
+    raise AttributeError(
+        f"module {__name__!r} has no attribute {name!r}"
+    )
