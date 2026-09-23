@@ -4,9 +4,9 @@ Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, 
 
 ## Versão atual
 
-**V2.2.1 — Correção de compatibilidade**
+**V2.2.2 — Compatibilidade do núcleo legado**
 
-A V2.2.1 corrige a compatibilidade com o núcleo histórico do aplicativo e mantém as melhorias de estabilidade da V2.2:
+A V2.2.2 amplia a compatibilidade com o núcleo histórico do aplicativo, restaurando as APIs legadas de caminhos usadas por main_window.py e settings.py, e mantém as melhorias de estabilidade da V2.2:
 
 - backup manual e backup automático diário do banco local;
 - restauração validada com cópia de segurança antes de substituir os dados atuais;
