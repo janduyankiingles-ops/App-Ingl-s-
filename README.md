@@ -1,4 +1,4 @@
-# English Video Player — V2.7.1
+# English Video Player — V2.7.2
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
@@ -6,6 +6,11 @@ Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, 
 
 
 
+
+
+## V2.7.2 — Contraste refinado
+
+A V2.7.2 mantém a arquitetura visual da V2.7, mas melhora a leitura das superfícies: fundo geral cinza-claro, cards brancos, bordas mais nítidas, campos editáveis com fundo próprio, separação mais forte na tela Texto e maior contraste entre painel, editor e resultado. Não há alteração funcional.
 
 ## V2.7.1 — Contraste e profundidade
 
