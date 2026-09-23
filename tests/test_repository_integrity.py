@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV272", content)
+        self.assertIn("MainWindowV280", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v272_window.py"
+        source = PACKAGE / "v280_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV272", content)
-        self.assertIn("MainWindowV271", content)
+        self.assertIn("class MainWindowV280", content)
+        self.assertIn("MainWindowV272", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -134,6 +134,20 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("analysisSurface", theme)
         self.assertIn('parent.setObjectName("editorCard")', window)
         self.assertIn('text_tabs.setObjectName("analysisSurface")', window)
+
+
+    def test_v280_responsive_layout(self):
+        theme = (PACKAGE / "v280_theme.py").read_text(encoding="utf-8")
+        window = (PACKAGE / "v280_window.py").read_text(encoding="utf-8")
+        self.assertIn("QLabel,", theme)
+        self.assertIn("background-color: transparent", theme)
+        self.assertIn("hubBody", theme)
+        self.assertIn("class MainWindowV280", window)
+        self.assertIn("setMaximumWidth(1120)", window)
+        self.assertIn("_optimize_text_workspace", window)
+        self.assertIn("_reflow_text_editor_splitter", window)
+        self.assertIn("_install_learning_empty_state", window)
+        self.assertIn("index // 3", window)
 
 
 if __name__ == "__main__":
