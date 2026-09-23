@@ -42,7 +42,8 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
         self.assertIn("class MainWindowV271", content)
-        self.assertIn("_rebuild_hubs", content)
+        self.assertIn("MainWindowV270", content)
+        self.assertIn("_apply_v271_visual_roles", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
