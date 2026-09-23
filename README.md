@@ -1,9 +1,14 @@
-# English Video Player — V2.6.0
+# English Video Player — V2.7.0
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
 
 
+
+
+## V2.7.0 — Redesign inspirado em learning apps
+
+A V2.7.0 abandona a estética de dashboard técnico e adota uma experiência clara e guiada: tema claro, cinco destinos principais, trilha diária visual com nós circulares, próxima atividade destacada, prática separada da progressão principal e telas-resumo para Progresso e Configurações. Atividades futuras da trilha ficam visualmente secundárias e o usuário pode acessar qualquer habilidade livremente pela área Praticar. As ferramentas avançadas continuam disponíveis sem ocupar o primeiro nível da interface.
 
 ## V2.6.0 — Experiência guiada
 
