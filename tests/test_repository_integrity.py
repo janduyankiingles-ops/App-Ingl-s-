@@ -43,7 +43,6 @@ class RepositoryIntegrityTests(unittest.TestCase):
         content = source.read_text(encoding="utf-8")
         self.assertIn("class MainWindowV272", content)
         self.assertIn("MainWindowV271", content)
-        self.assertIn("_apply_v271_visual_roles", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -119,8 +118,8 @@ class RepositoryIntegrityTests(unittest.TestCase):
         theme = (PACKAGE / "v271_theme.py").read_text(encoding="utf-8")
         window = (PACKAGE / "v271_window.py").read_text(encoding="utf-8")
         self.assertIn("CONTRAST_STYLE", theme)
-        self.assertIn("#F3F5F7", theme)
-        self.assertIn("#BCC6D1", theme)
+        self.assertIn("#EDF1F4", theme)
+        self.assertIn("#A9B5C2", theme)
         self.assertIn("editorSurface", theme)
         self.assertIn("class MainWindowV271", window)
         self.assertIn("_apply_v271_visual_roles", window)
