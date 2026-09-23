@@ -34,7 +34,26 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV231", content)
+        self.assertIn("MainWindowV240", content)
+
+
+    def test_visual_entrypoint_exists(self):
+        source = PACKAGE / "v240_window.py"
+        self.assertTrue(source.exists())
+        content = source.read_text(encoding="utf-8")
+        self.assertIn("class MainWindowV240", content)
+        self.assertIn("_apply_v240_design", content)
+
+    def test_design_system_contains_component_roles(self):
+        content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
+        for role in (
+            "primaryButton",
+            "dangerButton",
+            "metricCard",
+            "studyStepCard",
+            "playerCard",
+        ):
+            self.assertIn(role, content)
 
 
 if __name__ == "__main__":
