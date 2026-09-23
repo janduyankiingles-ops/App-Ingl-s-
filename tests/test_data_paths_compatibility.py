@@ -32,6 +32,17 @@ class DataPathsCompatibilityTests(unittest.TestCase):
             data_paths.install_dir = original_install
             data_paths.app_data_dir = original_app_data
 
+    def test_settings_path_api_exists(self):
+        path = data_paths.settings_path()
+        self.assertEqual(path.name, "settings.json")
+        self.assertTrue(callable(data_paths.cache_dir))
+        self.assertTrue(callable(data_paths.logs_dir))
+
+    def test_generic_legacy_path_fallback(self):
+        dynamic = getattr(data_paths, "legacy_feature_dir")
+        path = dynamic()
+        self.assertEqual(path.name, "legacy-feature")
+
     def test_database_detector_recognizes_app_table(self):
         import sqlite3
 
