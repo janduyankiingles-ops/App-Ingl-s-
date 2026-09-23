@@ -1,4 +1,4 @@
-# English Video Player — V2.9.1
+# English Video Player — V2.9.2
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
@@ -10,6 +10,11 @@ Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, 
 
 
 
+
+
+## V2.9.2 — Inicialização resiliente
+
+Corrige o aviso de fonte inválida herdando a fonte real do item de navegação e altera a V2.9 para aplicar as normalizações de layout somente após o event loop iniciar. Assim a janela aparece primeiro e qualquer falha de refinamento visual é isolada sem derrubar o aplicativo. Tabelas grandes também deixam de usar ResizeToContents em todas as linhas durante a inicialização.
 
 ## V2.9.1 — Correção de inicialização
 
