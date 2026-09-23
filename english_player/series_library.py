@@ -30,6 +30,7 @@ class SeriesEpisode:
     vocabulary_count: int = 0
     listening_count: int = 0
     quiz_count: int = 0
+    sentence_count: int = 0
 
     @property
     def progress_percent(self) -> int:
@@ -279,7 +280,7 @@ class SeriesLibraryStore:
         episodes = self.list_episodes(path=str(path))
         return episodes[0] if episodes else None
 
-    def _stats_expressions(self, conn) -> tuple[str, str, str]:
+    def _stats_expressions(self, conn) -> tuple[str, str, str, str]:
         vocab = (
             """
             (SELECT COUNT(*) FROM vocabulary v
@@ -309,7 +310,15 @@ class SeriesLibraryStore:
             )
             else "0"
         )
-        return vocab, listening, quiz
+        sentences = (
+            """
+            (SELECT COUNT(*) FROM sentence_cards s
+             WHERE s.video_path = e.path)
+            """
+            if self._table_exists(conn, "sentence_cards")
+            else "0"
+        )
+        return vocab, listening, quiz, sentences
 
     def list_episodes(
         self,
@@ -330,7 +339,7 @@ class SeriesLibraryStore:
             args.append(str(path))
 
         with self.database.connect() as conn:
-            vocab, listening, quiz = self._stats_expressions(conn)
+            vocab, listening, quiz, sentences = self._stats_expressions(conn)
             sql = f"""
                 SELECT
                     e.path,
@@ -344,7 +353,8 @@ class SeriesLibraryStore:
                     e.last_opened_at,
                     {vocab} AS vocabulary_count,
                     {listening} AS listening_count,
-                    {quiz} AS quiz_count
+                    {quiz} AS quiz_count,
+                    {sentences} AS sentence_count
                 FROM series_episodes e
             """
             if where:
@@ -372,6 +382,7 @@ class SeriesLibraryStore:
                 vocabulary_count=int(row["vocabulary_count"] or 0),
                 listening_count=int(row["listening_count"] or 0),
                 quiz_count=int(row["quiz_count"] or 0),
+                sentence_count=int(row["sentence_count"] or 0),
             )
             for row in rows
         ]
