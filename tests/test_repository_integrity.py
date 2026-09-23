@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV290", content)
+        self.assertIn("MainWindowV292", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v290_window.py"
+        source = PACKAGE / "v292_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV290", content)
-        self.assertIn("MainWindowV280", content)
+        self.assertIn("class MainWindowV292", content)
+        self.assertIn("MainWindowV290", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -176,6 +176,18 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertNotIn("findChildren((", window)
         self.assertIn("findChildren(QTextBrowser)", window)
         self.assertIn("findChildren(QTextEdit)", window)
+
+
+    def test_v292_resilient_startup(self):
+        window = (PACKAGE / "v292_window.py").read_text(encoding="utf-8")
+        nav = (PACKAGE / "v250_window.py").read_text(encoding="utf-8")
+        global_layout = (PACKAGE / "v290_window.py").read_text(encoding="utf-8")
+        self.assertIn("MainWindowV280.__init__(self)", window)
+        self.assertIn("QTimer.singleShot(0", window)
+        self.assertIn("_safe_layout_call", window)
+        self.assertIn("header.font()", nav)
+        self.assertNotIn("header_font = QFont()", nav)
+        self.assertIn("table.rowCount() <= 200", global_layout)
 
 
 if __name__ == "__main__":
