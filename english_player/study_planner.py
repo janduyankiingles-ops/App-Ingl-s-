@@ -120,11 +120,33 @@ class StudyPlanner:
         listening_recent_count = self._recent_count(
             "listening_attempts", "attempted_at"
         )
-        quiz_recent_count = self._recent_count("quiz_log", "created_at")
+        vocabulary_quiz_count = self._recent_count(
+            "quiz_log", "created_at"
+        )
+        text_quiz_count = self._recent_count(
+            "text_question_attempts", "created_at"
+        )
+        quiz_recent_count = vocabulary_quiz_count + text_quiz_count
+
         listening_recent_avg = self._recent_average(
             "listening_attempts", "attempted_at"
         )
-        quiz_recent_avg = self._recent_average("quiz_log", "created_at")
+        vocabulary_quiz_avg = self._recent_average(
+            "quiz_log", "created_at"
+        )
+        text_quiz_avg = self._recent_average(
+            "text_question_attempts", "created_at"
+        )
+        if quiz_recent_count:
+            quiz_recent_avg = round(
+                (
+                    vocabulary_quiz_avg * vocabulary_quiz_count
+                    + text_quiz_avg * text_quiz_count
+                )
+                / quiz_recent_count
+            )
+        else:
+            quiz_recent_avg = 0
 
         weak_count = len(snapshot["weak_words"])
 
