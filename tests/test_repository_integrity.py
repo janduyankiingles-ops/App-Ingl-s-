@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV295", content)
+        self.assertIn("MainWindowV296", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v295_window.py"
+        source = PACKAGE / "v296_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV295", content)
-        self.assertIn("MainWindowV294", content)
+        self.assertIn("class MainWindowV296", content)
+        self.assertIn("MainWindowV295", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -215,6 +215,23 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("setWordWrap(True)", window)
         self.assertIn("Estudar vídeo", window)
         self.assertIn("LEARN_SAFE_STYLE", theme)
+
+
+    def test_v296_video_study_layout_is_isolated(self):
+        window = (PACKAGE / "v296_window.py").read_text(encoding="utf-8")
+        theme = (PACKAGE / "v296_theme.py").read_text(encoding="utf-8")
+        self.assertIn("class MainWindowV296", window)
+        self.assertIn("_fix_video_command_bar", window)
+        self.assertIn("_fix_video_study_layout", window)
+        self.assertIn("QScrollArea", window)
+        self.assertIn("SetMinimumSize", window)
+        self.assertIn("studySideScroll", window)
+        self.assertIn("Gerar legenda EN", window)
+        self.assertIn("Traduzir PT", window)
+        self.assertIn("Pacote offline", window)
+        self.assertIn("Dicionário expandido", window)
+        self.assertNotIn("_normalize_tables", window)
+        self.assertIn("STUDY_SAFE_STYLE", theme)
 
 
 if __name__ == "__main__":
