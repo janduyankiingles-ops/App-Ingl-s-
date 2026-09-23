@@ -10,6 +10,7 @@ from english_player.movie_library import MovieLibraryStore
 from english_player.progress_store import ProgressStore
 from english_player.series_library import SeriesLibraryStore
 from english_player.study_planner import StudyPlanner
+from english_player.text_study import TextStudyStore
 
 
 class CrossFeatureIntegrationTests(unittest.TestCase):
@@ -73,35 +74,33 @@ class CrossFeatureIntegrationTests(unittest.TestCase):
             self.assertEqual(snapshot["quiz_correct"], 1)
             self.assertGreaterEqual(snapshot["current_streak"], 1)
 
-    def test_today_plan_counts_text_questions_as_quiz(self):
+    def test_today_plan_counts_real_text_store_attempt_as_quiz(self):
         with tempfile.TemporaryDirectory() as temp:
             database = self._database(temp)
             progress = ProgressStore(database)
             planner = StudyPlanner(database, progress)
-            now = datetime.now().replace(microsecond=0).isoformat(timespec="seconds")
+            text_store = TextStudyStore(database)
 
-            with database.connect() as conn:
-                conn.execute(
-                    """
-                    CREATE TABLE text_question_attempts(
-                        id INTEGER PRIMARY KEY,
-                        score INTEGER NOT NULL,
-                        correct INTEGER NOT NULL,
-                        created_at TEXT NOT NULL
-                    )
-                    """
-                )
-                conn.execute(
-                    """
-                    INSERT INTO text_question_attempts(score, correct, created_at)
-                    VALUES (100, 1, ?)
-                    """,
-                    (now,),
-                )
+            document_id = text_store.save(
+                "Security",
+                "Cloud security matters because banks process sensitive data.",
+                "A segurança em nuvem é importante porque bancos processam dados sensíveis.",
+            )
+            text_store.record_question_attempt(
+                document_id=document_id,
+                prompt="What is the main topic?",
+                selected_answer="Cloud security",
+                expected_answer="Cloud security",
+                correct=True,
+            )
 
             plan = planner.plan()
             quiz = next(step for step in plan["steps"] if step.key == "quiz")
             self.assertEqual(quiz.done, 1)
+
+            snapshot = progress.snapshot()
+            self.assertEqual(snapshot["today_text_quiz"], 1)
+            self.assertEqual(snapshot["quiz_average"], 100)
 
     def test_series_exposes_sentence_count(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -175,13 +174,26 @@ class CrossFeatureIntegrationTests(unittest.TestCase):
         self.assertIn("def _review_changed", source)
         self.assertIn("def _check_music_blank", source)
 
+    @staticmethod
+    def _method_source(source: str, name: str) -> str:
+        marker = f"    def {name}("
+        start = source.index(marker)
+        end = source.find("\n    def ", start + len(marker))
+        return source[start:] if end < 0 else source[start:end]
+
     def test_quiz_only_updates_learning_after_valid_check(self):
         source = (
             Path(__file__).resolve().parents[1]
             / "english_player"
             / "v136_window.py"
         ).read_text(encoding="utf-8")
-        self.assertIn('getattr(self, "_quiz_checked", False)', source)
+        quiz = self._method_source(source, "_check_quiz_answer")
+        review = self._method_source(source, "_rate_review")
+
+        self.assertIn('getattr(self, "_quiz_checked", False)', quiz)
+        self.assertNotIn('getattr(self, "_quiz_checked", False)', review)
+        self.assertIn("mark_learning_if_new", quiz)
+        self.assertIn("mark_learning_if_new", review)
 
 
 if __name__ == "__main__":
