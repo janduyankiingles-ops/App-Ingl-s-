@@ -20,6 +20,10 @@ A V2.2.2 amplia a compatibilidade com o núcleo histórico do aplicativo, restau
 
 ## Recursos principais
 
+- sincronização automática entre Vocabulário, Revisão, Quiz, Hoje e Progresso;
+- reanálise de Frases quando o vocabulário conhecido muda;
+- métricas integradas de Texto, Frases e Música no Progresso;
+- estatísticas consistentes entre Séries e Filmes;
 - estudo de textos para concursos;
 - tradução local EN → PT de textos;
 - análise de conectores, referências, gramática e vocabulário de TI/bancário;
