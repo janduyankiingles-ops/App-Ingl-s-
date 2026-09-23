@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV271", content)
+        self.assertIn("MainWindowV272", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v271_window.py"
+        source = PACKAGE / "v272_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV271", content)
-        self.assertIn("MainWindowV270", content)
+        self.assertIn("class MainWindowV272", content)
+        self.assertIn("MainWindowV271", content)
         self.assertIn("_apply_v271_visual_roles", content)
 
     def test_design_system_contains_component_roles(self):
@@ -124,6 +124,17 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("editorSurface", theme)
         self.assertIn("class MainWindowV271", window)
         self.assertIn("_apply_v271_visual_roles", window)
+
+
+    def test_v272_stronger_surface_contrast(self):
+        theme = (PACKAGE / "v271_theme.py").read_text(encoding="utf-8")
+        window = (PACKAGE / "v271_window.py").read_text(encoding="utf-8")
+        self.assertIn("#EDF1F4", theme)
+        self.assertIn("#A9B5C2", theme)
+        self.assertIn("editorCard", theme)
+        self.assertIn("analysisSurface", theme)
+        self.assertIn('parent.setObjectName("editorCard")', window)
+        self.assertIn('text_tabs.setObjectName("analysisSurface")', window)
 
 
 if __name__ == "__main__":
