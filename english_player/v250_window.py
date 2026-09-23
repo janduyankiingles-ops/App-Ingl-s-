@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -335,6 +336,10 @@ class MainWindowV250(MainWindowV240):
             header.setFlags(
                 Qt.ItemIsEnabled | Qt.ItemIsSelectable
             )
+            header_font = QFont()
+            header_font.setWeight(QFont.DemiBold)
+            header.setFont(header_font)
+            header.setForeground(QColor("#8B98A9"))
             nav.addItem(header)
 
             if expanded:
