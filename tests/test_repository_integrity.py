@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV280", content)
+        self.assertIn("MainWindowV290", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v280_window.py"
+        source = PACKAGE / "v290_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV280", content)
-        self.assertIn("MainWindowV272", content)
+        self.assertIn("class MainWindowV290", content)
+        self.assertIn("MainWindowV280", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -148,6 +148,27 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("_reflow_text_editor_splitter", window)
         self.assertIn("_install_learning_empty_state", window)
         self.assertIn("index // 3", window)
+
+
+    def test_v290_global_layout_normalization(self):
+        theme = (PACKAGE / "v290_theme.py").read_text(encoding="utf-8")
+        window = (PACKAGE / "v290_window.py").read_text(encoding="utf-8")
+        self.assertIn("REFINED_LAYOUT_STYLE", theme)
+        self.assertIn("#E5EAF0", theme)
+        self.assertIn("studySidePanel", theme)
+        self.assertIn("studyToolbar", theme)
+        self.assertIn("_rebuild_study_toolbar", window)
+        self.assertIn("_rebuild_study_workspace", window)
+        self.assertIn("_rebuild_player_controls", window)
+        self.assertIn("QScrollArea", window)
+        self.assertIn("_normalize_buttons", window)
+        self.assertIn("_normalize_labels", window)
+        self.assertIn("_normalize_text_surfaces", window)
+        self.assertIn("_normalize_tables", window)
+        self.assertIn("_normalize_trees", window)
+        self.assertIn("_wrap_dense_pages", window)
+        self.assertIn("setMaximumHeight(_MAX_WIDGET_SIZE)", window)
+        self.assertIn("ResizeToContents", window)
 
 
 if __name__ == "__main__":
