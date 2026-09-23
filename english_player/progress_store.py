@@ -124,6 +124,24 @@ class ProgressStore:
                 ).fetchall()
                 if row[0]
             )
+        for table, column in (
+            ("sentence_practice_attempts", "attempted_at"),
+            ("music_attempts", "created_at"),
+            ("text_question_attempts", "created_at"),
+        ):
+            if not self._table_exists(conn, table):
+                continue
+            days.update(
+                str(row[0])
+                for row in conn.execute(
+                    f"""
+                    SELECT DISTINCT substr({column}, 1, 10)
+                    FROM {table}
+                    WHERE {column} <> ''
+                    """
+                ).fetchall()
+                if row[0]
+            )
         return days
 
     @staticmethod
@@ -168,6 +186,9 @@ class ProgressStore:
         reviews = 0
         listening = 0
         quiz = 0
+        text_quiz = 0
+        sentences = 0
+        music = 0
 
         if self._table_exists(conn, "review_log"):
             reviews = self._scalar(
@@ -196,12 +217,43 @@ class ProgressStore:
                 """,
                 (day,),
             )
+        if self._table_exists(conn, "text_question_attempts"):
+            text_quiz = self._scalar(
+                conn,
+                """
+                SELECT COUNT(*) FROM text_question_attempts
+                WHERE substr(created_at, 1, 10) = ?
+                """,
+                (day,),
+            )
+            quiz += text_quiz
+        if self._table_exists(conn, "sentence_practice_attempts"):
+            sentences = self._scalar(
+                conn,
+                """
+                SELECT COUNT(*) FROM sentence_practice_attempts
+                WHERE substr(attempted_at, 1, 10) = ?
+                """,
+                (day,),
+            )
+        if self._table_exists(conn, "music_attempts"):
+            music = self._scalar(
+                conn,
+                """
+                SELECT COUNT(*) FROM music_attempts
+                WHERE substr(created_at, 1, 10) = ?
+                """,
+                (day,),
+            )
 
         return {
             "reviews": reviews,
             "listening": listening,
             "quiz": quiz,
-            "total": reviews + listening + quiz,
+            "text_quiz": text_quiz,
+            "sentences": sentences,
+            "music": music,
+            "total": reviews + listening + quiz + sentences + music,
         }
 
     def _weak_words(self, conn, limit: int = 8) -> list[dict]:
@@ -376,23 +428,63 @@ class ProgressStore:
 
             quiz_average = 0
             quiz_correct = 0
+            quiz_score_total = 0
+            quiz_score_count = 0
             if self._table_exists(conn, "quiz_log"):
-                quiz_average = self._average(
+                quiz_score_total += self._scalar(
                     conn,
                     """
-                    SELECT AVG(score) FROM quiz_log
+                    SELECT COALESCE(SUM(score), 0) FROM quiz_log
                     WHERE substr(created_at, 1, 10) = ?
                     """,
                     (today,),
                 )
-                quiz_correct = self._scalar(
+                quiz_score_count += self._scalar(
                     conn,
                     """
-                    SELECT SUM(correct) FROM quiz_log
+                    SELECT COUNT(*) FROM quiz_log
                     WHERE substr(created_at, 1, 10) = ?
                     """,
                     (today,),
                 )
+                quiz_correct += self._scalar(
+                    conn,
+                    """
+                    SELECT COALESCE(SUM(correct), 0) FROM quiz_log
+                    WHERE substr(created_at, 1, 10) = ?
+                    """,
+                    (today,),
+                )
+            if self._table_exists(conn, "text_question_attempts"):
+                quiz_score_total += self._scalar(
+                    conn,
+                    """
+                    SELECT COALESCE(SUM(score), 0)
+                    FROM text_question_attempts
+                    WHERE substr(created_at, 1, 10) = ?
+                    """,
+                    (today,),
+                )
+                quiz_score_count += self._scalar(
+                    conn,
+                    """
+                    SELECT COUNT(*)
+                    FROM text_question_attempts
+                    WHERE substr(created_at, 1, 10) = ?
+                    """,
+                    (today,),
+                )
+                quiz_correct += self._scalar(
+                    conn,
+                    """
+                    SELECT COALESCE(SUM(correct), 0)
+                    FROM text_question_attempts
+                    WHERE substr(created_at, 1, 10) = ?
+                    """,
+                    (today,),
+                )
+            if quiz_score_count:
+                quiz_average = round(quiz_score_total / quiz_score_count)
 
             week = []
             for day in week_days:
@@ -413,6 +505,9 @@ class ProgressStore:
             "today_reviews": today_counts["reviews"],
             "today_listening": today_counts["listening"],
             "today_quiz": today_counts["quiz"],
+            "today_text_quiz": today_counts["text_quiz"],
+            "today_sentences": today_counts["sentences"],
+            "today_music": today_counts["music"],
             "today_total": today_counts["total"],
             "listening_average": listening_average,
             "quiz_average": quiz_average,
