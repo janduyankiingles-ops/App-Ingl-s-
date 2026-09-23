@@ -397,7 +397,6 @@ class MainWindowV136(MainWindowV135):
         if (
             vocabulary_id is not None
             and self.vocabulary_intelligence is not None
-            and bool(getattr(self, "_quiz_checked", False))
         ):
             self.vocabulary_intelligence.mark_learning_if_new(
                 vocabulary_id
@@ -415,6 +414,7 @@ class MainWindowV136(MainWindowV135):
         if (
             vocabulary_id is not None
             and self.vocabulary_intelligence is not None
+            and bool(getattr(self, "_quiz_checked", False))
         ):
             self.vocabulary_intelligence.mark_learning_if_new(
                 vocabulary_id
