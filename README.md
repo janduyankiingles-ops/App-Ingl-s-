@@ -1,8 +1,13 @@
-# English Video Player — V2.5.0
+# English Video Player — V2.6.0
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
 
+
+
+## V2.6.0 — Experiência guiada
+
+A V2.6.0 reorganiza o aplicativo em cinco destinos principais: Aprender, Praticar, Meu conteúdo, Progresso e Configurações. A tela Aprender apresenta uma trilha diária, recomenda o próximo passo e oferece três formas simples de estudar: vídeo, texto ou música. As telas técnicas continuam existindo, mas são abertas a partir de cartões orientados por tarefa e exibem um botão Voltar para retornar ao hub correspondente. A inspiração é o princípio de learning path do Duolingo: reduzir escolhas simultâneas e indicar claramente o próximo passo.
 
 ## V2.5.0 — Interface simplificada
 
