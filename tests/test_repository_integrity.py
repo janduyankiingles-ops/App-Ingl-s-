@@ -34,14 +34,14 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV270", content)
+        self.assertIn("MainWindowV271", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v270_window.py"
+        source = PACKAGE / "v271_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV270", content)
+        self.assertIn("class MainWindowV271", content)
         self.assertIn("_rebuild_hubs", content)
 
     def test_design_system_contains_component_roles(self):
@@ -112,6 +112,17 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("FRIENDLY_STYLE", theme)
         self.assertIn("#FFFFFF", theme)
         self.assertIn("pathNodeCurrent", theme)
+
+
+    def test_v271_contrast_layer(self):
+        theme = (PACKAGE / "v271_theme.py").read_text(encoding="utf-8")
+        window = (PACKAGE / "v271_window.py").read_text(encoding="utf-8")
+        self.assertIn("CONTRAST_STYLE", theme)
+        self.assertIn("#F3F5F7", theme)
+        self.assertIn("#BCC6D1", theme)
+        self.assertIn("editorSurface", theme)
+        self.assertIn("class MainWindowV271", window)
+        self.assertIn("_apply_v271_visual_roles", window)
 
 
 if __name__ == "__main__":
