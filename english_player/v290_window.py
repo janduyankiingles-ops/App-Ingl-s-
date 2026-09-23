@@ -516,9 +516,15 @@ class MainWindowV290(MainWindowV280):
 
             vertical = table.verticalHeader()
             vertical.setMinimumSectionSize(38)
-            vertical.setSectionResizeMode(
-                QHeaderView.ResizeMode.ResizeToContents
-            )
+            if table.rowCount() <= 200:
+                vertical.setSectionResizeMode(
+                    QHeaderView.ResizeMode.ResizeToContents
+                )
+            else:
+                vertical.setSectionResizeMode(
+                    QHeaderView.ResizeMode.Fixed
+                )
+                vertical.setDefaultSectionSize(44)
 
             header = table.horizontalHeader()
             header.setMinimumSectionSize(72)
