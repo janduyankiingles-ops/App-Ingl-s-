@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV250", content)
+        self.assertIn("MainWindowV260", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v250_window.py"
+        source = PACKAGE / "v260_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV250", content)
-        self.assertIn("_apply_v250_simplification", content)
+        self.assertIn("class MainWindowV260", content)
+        self.assertIn("_build_task_hubs", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -69,6 +69,23 @@ class RepositoryIntegrityTests(unittest.TestCase):
             self.assertIn(label, content)
         self.assertIn("Mais opções", content)
         self.assertIn("_hide_redundant_page_titles", content)
+
+
+    def test_guided_main_routes(self):
+        content = (PACKAGE / "v260_window.py").read_text(encoding="utf-8")
+        for label in (
+            '"Aprender"',
+            '"Praticar"',
+            '"Meu conteúdo"',
+            '"Progresso"',
+            '"Configurações"',
+        ):
+            self.assertIn(label, content)
+        self.assertIn("Seu caminho de hoje", content)
+        self.assertIn("Continuar", content)
+        self.assertIn("_build_practice_hub", content)
+        self.assertIn("_build_content_hub", content)
+        self.assertIn("_install_back_button", content)
 
 
 if __name__ == "__main__":
