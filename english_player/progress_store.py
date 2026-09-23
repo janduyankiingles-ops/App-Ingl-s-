@@ -128,6 +128,7 @@ class ProgressStore:
             ("sentence_practice_attempts", "attempted_at"),
             ("music_attempts", "created_at"),
             ("text_question_attempts", "created_at"),
+            ("study_session_log", "created_at"),
         ):
             if not self._table_exists(conn, table):
                 continue
