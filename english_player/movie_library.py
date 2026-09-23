@@ -17,6 +17,7 @@ class MovieItem:
     vocabulary_count: int = 0
     sentence_count: int = 0
     listening_count: int = 0
+    quiz_count: int = 0
 
     @property
     def progress_percent(self) -> int:
@@ -277,6 +278,20 @@ class MovieLibraryStore:
                 )
                 else "0"
             )
+            quiz_expr = (
+                """
+                (SELECT COUNT(*)
+                 FROM quiz_log q
+                 JOIN vocabulary qv
+                   ON qv.id = q.vocabulary_id
+                 WHERE qv.video_path = m.path)
+                """
+                if (
+                    self._table_exists(conn, "quiz_log")
+                    and self._table_exists(conn, "vocabulary")
+                )
+                else "0"
+            )
 
             sql = f"""
                 SELECT
@@ -289,7 +304,8 @@ class MovieLibraryStore:
                     m.last_opened_at,
                     {vocab_expr} AS vocabulary_count,
                     {sentence_expr} AS sentence_count,
-                    {listening_expr} AS listening_count
+                    {listening_expr} AS listening_count,
+                    {quiz_expr} AS quiz_count
                 FROM movie_library m
             """
 
@@ -340,6 +356,9 @@ class MovieLibraryStore:
                 ),
                 listening_count=int(
                     row["listening_count"] or 0
+                ),
+                quiz_count=int(
+                    row["quiz_count"] or 0
                 ),
             )
             for row in rows
