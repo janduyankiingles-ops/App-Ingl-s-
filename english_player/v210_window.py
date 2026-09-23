@@ -164,7 +164,7 @@ class MainWindowV210(MainWindowV200):
         search_row.addStretch(1)
         root.addLayout(search_row)
 
-        self.movie_table = QTableWidget(0, 7)
+        self.movie_table = QTableWidget(0, 8)
         self.movie_table.setHorizontalHeaderLabels(
             [
                 "Filme",
@@ -173,6 +173,7 @@ class MainWindowV210(MainWindowV200):
                 "Vocabulário",
                 "Frases",
                 "Escuta",
+                "Quiz",
                 "Arquivo",
             ]
         )
@@ -202,7 +203,8 @@ class MainWindowV210(MainWindowV200):
         self.movie_table.setColumnWidth(3, 100)
         self.movie_table.setColumnWidth(4, 90)
         self.movie_table.setColumnWidth(5, 80)
-        self.movie_table.setColumnWidth(6, 330)
+        self.movie_table.setColumnWidth(6, 80)
+        self.movie_table.setColumnWidth(7, 330)
 
         root.addWidget(self.movie_table, 1)
 
@@ -655,6 +657,15 @@ class MainWindowV210(MainWindowV200):
             self.movie_table.setItem(
                 row,
                 6,
+                QTableWidgetItem(
+                    str(
+                        movie.quiz_count
+                    )
+                ),
+            )
+            self.movie_table.setItem(
+                row,
+                7,
                 QTableWidgetItem(
                     movie.path
                 ),
