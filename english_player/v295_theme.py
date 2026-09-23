@@ -73,3 +73,4 @@ QFrame#duoPathAreaSafe QPushButton#pathNodeCurrent {
 QFrame#duoCard QPushButton {
     min-height: 40px;
 }
+"""
