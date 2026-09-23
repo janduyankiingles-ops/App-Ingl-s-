@@ -1,4 +1,4 @@
-# English Video Player — V2.9.3
+# English Video Player — V2.9.4
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
@@ -12,6 +12,11 @@ Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, 
 
 
 
+
+
+## V2.9.4 — Hotfix de estabilidade
+
+A V2.9.4 desativa a camada global de normalização introduzida na V2.9.x após travamentos reais em Windows. O aplicativo volta a usar a base estável da V2.8 para garantir inicialização e responsividade. As melhorias de layout serão reintroduzidas de forma incremental e isolada, tela por tela.
 
 ## V2.9.3 — Reparo local seguro
 
