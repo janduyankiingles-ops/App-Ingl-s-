@@ -554,8 +554,6 @@ QMenu::item {
 QMenu::item:selected {
     background-color: #213B60;
 }
-"""
-
 
 /* ---------- V2.6: guided learning UX ---------- */
 
@@ -717,3 +715,4 @@ QLabel#pathText {
     color: #7F8C9D;
     font-size: 11px;
 }\n"""\n
+"""
