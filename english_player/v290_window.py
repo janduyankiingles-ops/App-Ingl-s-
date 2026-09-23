@@ -272,7 +272,11 @@ class MainWindowV290(MainWindowV280):
                 QSizePolicy.Policy.Preferred,
             )
 
-        for editor in side.findChildren((QTextBrowser, QTextEdit)):
+        side_editors = (
+            side.findChildren(QTextBrowser)
+            + side.findChildren(QTextEdit)
+        )
+        for editor in side_editors:
             editor.setMaximumHeight(_MAX_WIDGET_SIZE)
             editor.setMinimumHeight(max(135, editor.minimumHeight()))
             editor.setSizePolicy(
@@ -469,7 +473,11 @@ class MainWindowV290(MainWindowV280):
                 )
 
     def _normalize_text_surfaces(self):
-        for editor in self.findChildren((QTextBrowser, QTextEdit)):
+        editors = (
+            self.findChildren(QTextBrowser)
+            + self.findChildren(QTextEdit)
+        )
+        for editor in editors:
             editor.setMaximumHeight(_MAX_WIDGET_SIZE)
             editor.setSizePolicy(
                 QSizePolicy.Policy.Expanding,
