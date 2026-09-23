@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV294", content)
+        self.assertIn("MainWindowV295", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v294_window.py"
+        source = PACKAGE / "v295_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV294", content)
-        self.assertIn("MainWindowV280", content)
+        self.assertIn("class MainWindowV295", content)
+        self.assertIn("MainWindowV294", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -202,6 +202,19 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("MainWindowV280", window)
         self.assertNotIn("MainWindowV290", window)
         self.assertNotIn("QTimer.singleShot", window)
+
+
+    def test_v295_learn_layout_is_overlap_safe(self):
+        window = (PACKAGE / "v295_window.py").read_text(encoding="utf-8")
+        theme = (PACKAGE / "v295_theme.py").read_text(encoding="utf-8")
+        self.assertIn("class LearningPathWidgetV295", window)
+        self.assertNotIn("pathCallout", window)
+        self.assertIn("STEP_HEIGHT = 158", window)
+        self.assertIn("label_width = min(260", window)
+        self.assertIn("learnNextCard", window)
+        self.assertIn("setWordWrap(True)", window)
+        self.assertIn("Estudar vídeo", window)
+        self.assertIn("LEARN_SAFE_STYLE", theme)
 
 
 if __name__ == "__main__":
