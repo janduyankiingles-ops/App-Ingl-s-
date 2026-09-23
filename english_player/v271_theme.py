@@ -231,8 +231,6 @@ QStatusBar {
     color: #667085;
     border-top: 1px solid #D4DCE5;
 }
-"""
-
 
 /* V2.7.2 — superfícies explícitas para áreas densas */
 QFrame#editorCard {
@@ -261,3 +259,4 @@ QLabel#duoPageSubtitle,
 QLabel#screenSubtitle {
     color: #687687;
 }
+"""
