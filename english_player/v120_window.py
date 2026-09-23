@@ -79,9 +79,9 @@ class MainWindowV120(MainWindowV110):
         root.addWidget(hint)
 
         self.series_tree = QTreeWidget()
-        self.series_tree.setColumnCount(5)
+        self.series_tree.setColumnCount(6)
         self.series_tree.setHeaderLabels(
-            ["Série / episódio", "Progresso", "Palavras", "Escuta", "Quiz"]
+            ["Série / episódio", "Progresso", "Palavras", "Frases", "Escuta", "Quiz"]
         )
         self.series_tree.setSelectionMode(QAbstractItemView.SingleSelection)
         self.series_tree.setAlternatingRowColors(True)
@@ -90,6 +90,7 @@ class MainWindowV120(MainWindowV110):
         self.series_tree.setColumnWidth(2, 100)
         self.series_tree.setColumnWidth(3, 100)
         self.series_tree.setColumnWidth(4, 100)
+        self.series_tree.setColumnWidth(5, 100)
         root.addWidget(self.series_tree, 1)
 
         footer = QHBoxLayout()
@@ -308,6 +309,7 @@ class MainWindowV120(MainWindowV110):
                     f"📺 {series_title}",
                     f"{len(series_eps)} episódio(s)",
                     str(sum(ep.vocabulary_count for ep in series_eps)),
+                    str(sum(ep.sentence_count for ep in series_eps)),
                     str(sum(ep.listening_count for ep in series_eps)),
                     str(sum(ep.quiz_count for ep in series_eps)),
                 ]
@@ -323,6 +325,7 @@ class MainWindowV120(MainWindowV110):
                         f"📁 Temporada {season_number}",
                         f"{len(season_eps)} episódio(s)",
                         str(sum(ep.vocabulary_count for ep in season_eps)),
+                        str(sum(ep.sentence_count for ep in season_eps)),
                         str(sum(ep.listening_count for ep in season_eps)),
                         str(sum(ep.quiz_count for ep in season_eps)),
                     ]
@@ -349,6 +352,7 @@ class MainWindowV120(MainWindowV110):
                             f"🎬 E{ep.episode_number:02d} — {ep.episode_title}",
                             progress,
                             str(ep.vocabulary_count),
+                            str(ep.sentence_count),
                             str(ep.listening_count),
                             str(ep.quiz_count),
                         ]
@@ -384,6 +388,7 @@ class MainWindowV120(MainWindowV110):
         self.series_tree.resizeColumnToContents(2)
         self.series_tree.resizeColumnToContents(3)
         self.series_tree.resizeColumnToContents(4)
+        self.series_tree.resizeColumnToContents(5)
 
     def _series_selection_changed(self):
         series, season, path = self._selected_series_context()
