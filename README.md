@@ -20,6 +20,11 @@ A V2.2.2 amplia a compatibilidade com o núcleo histórico do aplicativo, restau
 
 ## Recursos principais
 
+- estudo de textos para concursos;
+- tradução local EN → PT de textos;
+- análise de conectores, referências, gramática e vocabulário de TI/bancário;
+- questões geradas a partir do próprio texto;
+- biblioteca persistente de textos estudados;
 - player com múltiplas faixas de áudio;
 - geração de legenda inglesa com Faster-Whisper;
 - tradução EN → PT local;
