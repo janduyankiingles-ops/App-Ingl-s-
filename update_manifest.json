@@ -2,7 +2,7 @@
   "version": "2.2.0",
   "manifest_format": 2,
   "source_commit": "888eea1d2bdc273b9964d10b9889e1945e14436e",
-  "notes": "V2.2.0: versão de estabilização. Adiciona backup manual e automático diário, restauração validada, verificação de integridade do SQLite e backup antes de atualizações. Corrige os vínculos de Frases Inteligentes quando vídeos são movidos, reforça a validação de caminhos/URLs/hashes do atualizador e adiciona rollback do instalador. O repositório e o manifesto passam a incluir todo o runtime Python necessário, além de requirements.txt, reduzindo dependências ocultas de instalações antigas.",
+  "notes": "V2.2.0: versão de estabilização. Adiciona backup manual e automático diário, restauração validada, verificação de integridade do SQLite e backup antes de atualizações. Corrige os vínculos de Frases Inteligentes quando vídeos são movidos, reforça a validação de caminhos/URLs/hashes do atualizador e adiciona rollback do instalador. O repositório e o manifesto passam a incluir todo o runtime Python necessário, além de requirements.txt, reduzindo dependências ocultas de instalações antigas. Por segurança de compatibilidade, os módulos-base históricos main_window.py, models.py, srt_parser.py e database.py ficam versionados no repositório, mas não sobrescrevem automaticamente uma instalação existente nesta atualização.",
   "files": [
     {
       "path": "english_player/review_system.py",
@@ -253,26 +253,6 @@
       "path": "english_player/data_paths.py",
       "sha256": "bb31868946ed7e40f2e6d6c08402c34b8e7dcca14a42e3d1ccf319fa260a6932",
       "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/888eea1d2bdc273b9964d10b9889e1945e14436e/english_player/data_paths.py"
-    },
-    {
-      "path": "english_player/models.py",
-      "sha256": "d018fb77107ec0f765993980a1cc7b96eaddf3deefed7cc6e8921a054d78c957",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/888eea1d2bdc273b9964d10b9889e1945e14436e/english_player/models.py"
-    },
-    {
-      "path": "english_player/srt_parser.py",
-      "sha256": "b780558e6d800eadaded6341cfec88258e97bfe7ff71a2f9ea981fe6cea0a1d9",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/888eea1d2bdc273b9964d10b9889e1945e14436e/english_player/srt_parser.py"
-    },
-    {
-      "path": "english_player/main_window.py",
-      "sha256": "0b5ccea1af468d327da0d1b69a16e2de65938cb1cd5164c931e179440753d53b",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/888eea1d2bdc273b9964d10b9889e1945e14436e/english_player/main_window.py"
-    },
-    {
-      "path": "english_player/database.py",
-      "sha256": "c9ce54b476aaae5b2778e1e38b483ff3fc122be010aaf4dcd2ff8dc0c8f79e38",
-      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/888eea1d2bdc273b9964d10b9889e1945e14436e/english_player/database.py"
     },
     {
       "path": "english_player/backup_service.py",
