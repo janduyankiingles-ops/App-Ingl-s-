@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from .v294_window import MainWindowV294
+from .v295_theme import LEARN_SAFE_STYLE
 
 
 class LearningPathWidgetV295(QWidget):
@@ -193,6 +194,7 @@ class MainWindowV295(MainWindowV294):
         self.learn_next_detail = None
         self.learn_next_button = None
         super().__init__()
+        self.setStyleSheet(LEARN_SAFE_STYLE)
 
     def _build_learn_hub_v270(self):
         page, root = self._centered_page()
@@ -363,19 +365,27 @@ class MainWindowV295(MainWindowV294):
         )
 
         if current is None:
-            self.learn_next_title.setText("Plano concluído por hoje")
-            self.learn_next_detail.setText(
-                "Você pode revisar uma atividade concluída ou escolher um conteúdo novo abaixo."
-            )
-            self.learn_next_button.setText("PRATICAR")
+            if not steps:
+                self.learn_next_title.setText("Comece seu primeiro estudo")
+                self.learn_next_detail.setText(
+                    "Escolha vídeo, texto ou música abaixo para montar sua trilha."
+                )
+                self.learn_next_button.setText("ESTUDAR VÍDEO")
+                callback = lambda: self._open_module("estudar", "learn")
+            else:
+                self.learn_next_title.setText("Plano concluído por hoje")
+                self.learn_next_detail.setText(
+                    "Você pode revisar uma atividade concluída ou escolher uma prática."
+                )
+                self.learn_next_button.setText("PRATICAR")
+                callback = lambda: self._open_main_route("practice")
+
             self.learn_next_button.setEnabled(True)
             try:
                 self.learn_next_button.clicked.disconnect()
             except Exception:
                 pass
-            self.learn_next_button.clicked.connect(
-                lambda: self._open_main_route("practice")
-            )
+            self.learn_next_button.clicked.connect(callback)
             return
 
         title = str(getattr(current, "title", "") or "Próxima atividade")
