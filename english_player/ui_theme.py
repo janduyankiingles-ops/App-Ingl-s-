@@ -555,3 +555,165 @@ QMenu::item:selected {
     background-color: #213B60;
 }
 """
+
+
+/* ---------- V2.6: guided learning UX ---------- */
+
+QLabel#hubTitle {
+    color: #F8FAFC;
+    font-size: 25px;
+    font-weight: 750;
+}
+
+QLabel#hubSubtitle {
+    color: #8C9AAA;
+    font-size: 13px;
+    padding-bottom: 4px;
+}
+
+QLabel#hubSectionTitle {
+    color: #F0F4F8;
+    font-size: 16px;
+    font-weight: 700;
+    padding-top: 4px;
+}
+
+QLabel#hubOverline {
+    color: #78C98D;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+QFrame#learningHero {
+    background-color: #14251A;
+    border: 1px solid #2E6540;
+    border-radius: 16px;
+}
+
+QLabel#heroTitle {
+    color: #F3FAF5;
+    font-size: 21px;
+    font-weight: 750;
+}
+
+QLabel#heroText {
+    color: #A7B9AC;
+    font-size: 12px;
+}
+
+QPushButton#continueButton {
+    min-height: 42px;
+    padding: 0 18px;
+    background-color: #58A96B;
+    color: #FFFFFF;
+    border: 1px solid #70C382;
+    border-bottom: 3px solid #397948;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+QPushButton#continueButton:hover {
+    background-color: #64B777;
+    border-color: #83CF92;
+}
+
+QPushButton#continueButton:pressed {
+    background-color: #4B965D;
+    border-bottom: 1px solid #397948;
+}
+
+QFrame#learningCard {
+    background-color: #111821;
+    border: 1px solid #273342;
+    border-radius: 14px;
+    min-height: 132px;
+}
+
+QFrame#learningCard:hover {
+    border-color: #3A4B60;
+    background-color: #131C27;
+}
+
+QLabel#learningCardTitle {
+    color: #F4F7FA;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+QLabel#learningCardText {
+    color: #8997A7;
+    font-size: 12px;
+}
+
+QPushButton#taskButton {
+    min-height: 36px;
+    background-color: #172333;
+    color: #DCE6F2;
+    border: 1px solid #31445C;
+    border-bottom: 2px solid #223247;
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+QPushButton#taskButton:hover {
+    background-color: #1D2D42;
+    border-color: #476485;
+}
+
+QPushButton#backButton {
+    min-width: 74px;
+    background-color: transparent;
+    color: #9CACBD;
+    border: 1px solid #2A3747;
+    border-radius: 8px;
+}
+
+QPushButton#backButton:hover {
+    background-color: #151E29;
+    color: #FFFFFF;
+}
+
+QFrame#pathContainer {
+    background-color: transparent;
+    border: 0;
+}
+
+QFrame#pathStep,
+QFrame#pathStepDone {
+    background-color: #101720;
+    border: 1px solid #25313E;
+    border-radius: 13px;
+}
+
+QFrame#pathStepDone {
+    background-color: #0F1B14;
+    border-color: #294A34;
+}
+
+QLabel#pathBadge,
+QLabel#pathBadgeDone {
+    background-color: #233B5A;
+    color: #DCEBFF;
+    border: 2px solid #4B78B2;
+    border-radius: 18px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+QLabel#pathBadgeDone {
+    background-color: #2C6B3B;
+    color: #FFFFFF;
+    border-color: #5DAA6C;
+}
+
+QLabel#pathTitle {
+    color: #EEF3F8;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+QLabel#pathText {
+    color: #7F8C9D;
+    font-size: 11px;
+}
