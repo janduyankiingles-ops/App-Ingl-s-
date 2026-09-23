@@ -307,6 +307,15 @@ class SentenceMiningStore:
                 ),
             )
 
+    def refresh_all_analysis(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+                "SELECT id FROM sentence_cards ORDER BY id"
+            ).fetchall()
+        for row in rows:
+            value = int(row["id"] if hasattr(row, "keys") else row[0])
+            self.refresh_analysis(value)
+
     def set_status(self, card_id: int, status: str):
         status = str(status or "").strip().lower()
         if status not in VALID_SENTENCE_STATUSES:
