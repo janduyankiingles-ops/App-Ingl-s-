@@ -34,6 +34,21 @@ class MainWindowV271(MainWindowV270):
                 widget.setObjectName("editorSurface")
                 widget.setStyleSheet("")
 
+        # A tela Texto tem três níveis visuais bem definidos:
+        # card externo -> editor -> área de análise.
+        for name in ("text_source_edit", "text_translation_edit"):
+            widget = getattr(self, name, None)
+            if isinstance(widget, QTextEdit):
+                parent = widget.parentWidget()
+                if isinstance(parent, QFrame):
+                    parent.setObjectName("editorCard")
+                    parent.setStyleSheet("")
+
+        text_tabs = getattr(self, "text_study_tabs", None)
+        if isinstance(text_tabs, QTabWidget):
+            text_tabs.setObjectName("analysisSurface")
+            text_tabs.setStyleSheet("")
+
         # Os tabs internos são superfícies brancas sobre o fundo cinza do app.
         for tabs in self.findChildren(QTabWidget):
             if tabs is not getattr(self, "tabs", None):
