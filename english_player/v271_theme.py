@@ -14,23 +14,34 @@ CONTRAST_STYLE = FRIENDLY_STYLE + r"""
 QMainWindow,
 QDialog,
 QWidget {
-    background-color: #F3F5F7;
-    color: #334155;
+    background-color: #EDF1F4;
+    color: #2F3A46;
 }
 
 QWidget#appShell,
 QWidget#appMainArea {
-    background-color: #F3F5F7;
+    background-color: #EDF1F4;
+}
+
+QScrollArea,
+QAbstractScrollArea,
+QStackedWidget {
+    background-color: #EDF1F4;
+    border: 0;
+}
+
+QScrollArea > QWidget > QWidget {
+    background-color: #EDF1F4;
 }
 
 QFrame#sidebar {
-    background-color: #FBFCFD;
-    border-right: 2px solid #CDD5DF;
+    background-color: #F8FAFC;
+    border-right: 2px solid #C7D0DA;
 }
 
 QFrame#topbar {
-    background-color: #FBFCFD;
-    border-bottom: 2px solid #D3DAE3;
+    background-color: #F8FAFC;
+    border-bottom: 2px solid #CBD4DE;
 }
 
 /* Cards principais */
@@ -44,16 +55,16 @@ QFrame#studyStepCard,
 QFrame#toolbarCard,
 QFrame#surfaceCard {
     background-color: #FFFFFF;
-    border: 2px solid #CDD5DF;
-    border-bottom: 4px solid #BFC8D3;
+    border: 2px solid #C4CDD8;
+    border-bottom: 4px solid #AFBAC7;
     border-radius: 16px;
 }
 
 /* Painéis internos / seções */
 QFrame#sectionSurface,
 QFrame#innerSurface {
-    background-color: #F8FAFC;
-    border: 2px solid #D2D9E2;
+    background-color: #F5F7FA;
+    border: 2px solid #C6CFDA;
     border-radius: 13px;
 }
 
@@ -61,9 +72,9 @@ QFrame#innerSurface {
 QLineEdit,
 QComboBox,
 QSpinBox {
-    background-color: #F8FAFC;
-    color: #273444;
-    border: 2px solid #BCC6D1;
+    background-color: #FAFBFC;
+    color: #263442;
+    border: 2px solid #AEB9C5;
     border-radius: 10px;
 }
 
@@ -72,8 +83,8 @@ QTextBrowser,
 QTextEdit#editorSurface,
 QTextBrowser#editorSurface {
     background-color: #F8FAFC;
-    color: #273444;
-    border: 2px solid #B8C3CF;
+    color: #263442;
+    border: 2px solid #A9B5C2;
     border-radius: 11px;
     padding: 11px;
 }
@@ -83,8 +94,8 @@ QComboBox:hover,
 QSpinBox:hover,
 QTextEdit:hover,
 QTextBrowser:hover {
-    border-color: #9EABB9;
-    background-color: #FBFCFD;
+    border-color: #8998A8;
+    background-color: #FFFFFF;
 }
 
 QLineEdit:focus,
@@ -95,13 +106,13 @@ QTextBrowser:focus,
 QTextEdit#editorSurface:focus,
 QTextBrowser#editorSurface:focus {
     background-color: #FFFFFF;
-    border: 2px solid #65B8EA;
+    border: 2px solid #4AA8DE;
 }
 
 /* Tabs e containers internos */
 QTabWidget::pane {
     background-color: #FFFFFF;
-    border: 2px solid #CDD5DF;
+    border: 2px solid #C4CDD8;
     border-radius: 12px;
 }
 
@@ -118,8 +129,8 @@ QTabBar::tab:selected {
 QGroupBox {
     background-color: #FFFFFF;
     color: #334155;
-    border: 2px solid #CDD5DF;
-    border-bottom: 3px solid #C1CAD5;
+    border: 2px solid #C4CDD8;
+    border-bottom: 3px solid #B3BEC9;
     border-radius: 14px;
 }
 
@@ -134,7 +145,7 @@ QTreeWidget {
     background-color: #FFFFFF;
     alternate-background-color: #F6F8FA;
     color: #334155;
-    border: 2px solid #C8D1DC;
+    border: 2px solid #BAC5D1;
     border-radius: 12px;
     gridline-color: #E1E6EC;
     selection-background-color: #DFF2D8;
@@ -142,17 +153,17 @@ QTreeWidget {
 }
 
 QHeaderView::section {
-    background-color: #EEF2F6;
-    color: #566273;
-    border-bottom: 2px solid #C8D1DC;
+    background-color: #E8EDF2;
+    color: #4B5968;
+    border-bottom: 2px solid #BAC5D1;
 }
 
 /* Botões neutros mais definidos */
 QPushButton {
     background-color: #FFFFFF;
     color: #344054;
-    border: 2px solid #CCD4DE;
-    border-bottom: 4px solid #BAC4D0;
+    border: 2px solid #C1CAD5;
+    border-bottom: 4px solid #AEB9C5;
 }
 
 QPushButton:hover {
@@ -221,3 +232,32 @@ QStatusBar {
     border-top: 1px solid #D4DCE5;
 }
 """
+
+
+/* V2.7.2 — superfícies explícitas para áreas densas */
+QFrame#editorCard {
+    background-color: #FFFFFF;
+    border: 2px solid #BCC6D1;
+    border-bottom: 4px solid #AEB8C4;
+    border-radius: 15px;
+}
+
+QFrame#analysisSurface {
+    background-color: #F7F9FB;
+    border: 2px solid #C4CDD8;
+    border-radius: 13px;
+}
+
+QLabel#surfaceCaption {
+    color: #3F4D5A;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+QLabel#mutedLabel,
+QLabel#mutedText,
+QLabel#duoCardText,
+QLabel#duoPageSubtitle,
+QLabel#screenSubtitle {
+    color: #687687;
+}
