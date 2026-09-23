@@ -9,6 +9,7 @@ from english_player.database import AppDatabase
 from english_player.movie_library import MovieLibraryStore
 from english_player.progress_store import ProgressStore
 from english_player.series_library import SeriesLibraryStore
+from english_player.study_planner import StudyPlanner
 
 
 class CrossFeatureIntegrationTests(unittest.TestCase):
@@ -71,6 +72,36 @@ class CrossFeatureIntegrationTests(unittest.TestCase):
             self.assertEqual(snapshot["quiz_average"], 100)
             self.assertEqual(snapshot["quiz_correct"], 1)
             self.assertGreaterEqual(snapshot["current_streak"], 1)
+
+    def test_today_plan_counts_text_questions_as_quiz(self):
+        with tempfile.TemporaryDirectory() as temp:
+            database = self._database(temp)
+            progress = ProgressStore(database)
+            planner = StudyPlanner(database, progress)
+            now = datetime.now().replace(microsecond=0).isoformat(timespec="seconds")
+
+            with database.connect() as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE text_question_attempts(
+                        id INTEGER PRIMARY KEY,
+                        score INTEGER NOT NULL,
+                        correct INTEGER NOT NULL,
+                        created_at TEXT NOT NULL
+                    )
+                    """
+                )
+                conn.execute(
+                    """
+                    INSERT INTO text_question_attempts(score, correct, created_at)
+                    VALUES (100, 1, ?)
+                    """,
+                    (now,),
+                )
+
+            plan = planner.plan()
+            quiz = next(step for step in plan["steps"] if step.key == "quiz")
+            self.assertEqual(quiz.done, 1)
 
     def test_series_exposes_sentence_count(self):
         with tempfile.TemporaryDirectory() as temp:
