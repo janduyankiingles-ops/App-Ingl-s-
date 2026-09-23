@@ -1,4 +1,4 @@
-# English Video Player — V2.9.0
+# English Video Player — V2.9.1
 
 Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, filmes, músicas e conteúdo real.
 
@@ -9,6 +9,11 @@ Aplicativo desktop em Python/PySide6 para estudar inglês com vídeos, séries, 
 
 
 
+
+
+## V2.9.1 — Correção de inicialização
+
+Corrige incompatibilidade do PySide6 na V2.9.0: `QObject.findChildren` não aceita uma tupla de classes. As buscas por `QTextBrowser` e `QTextEdit` agora são feitas separadamente e combinadas, preservando toda a normalização responsiva da V2.9.0.
 
 ## V2.9.0 — Responsividade global
 
