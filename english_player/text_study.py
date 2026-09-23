@@ -533,6 +533,26 @@ class TextStudyStore:
                 ON text_documents(updated_at DESC)
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS text_question_attempts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    document_id INTEGER,
+                    prompt TEXT NOT NULL,
+                    selected_answer TEXT NOT NULL,
+                    expected_answer TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    correct INTEGER NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_text_question_attempts_time
+                ON text_question_attempts(created_at)
+                """
+            )
 
     def save(
         self,
@@ -623,13 +643,56 @@ class TextStudyStore:
                 (int(document_id),),
             )
 
+    def record_question_attempt(
+        self,
+        *,
+        document_id: int | None,
+        prompt: str,
+        selected_answer: str,
+        expected_answer: str,
+        correct: bool,
+    ):
+        with self.database.connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO text_question_attempts(
+                    document_id, prompt, selected_answer,
+                    expected_answer, score, correct, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    int(document_id) if document_id else None,
+                    str(prompt or "").strip(),
+                    str(selected_answer or "").strip(),
+                    str(expected_answer or "").strip(),
+                    100 if correct else 0,
+                    1 if correct else 0,
+                    self._now(),
+                ),
+            )
+
     def stats(self) -> dict:
+        today = datetime.now().date().isoformat()
         with self.database.connect() as conn:
             total = int(
                 conn.execute("SELECT COUNT(*) FROM text_documents").fetchone()[0]
                 or 0
             )
-        return {"total": total}
+            attempts = conn.execute(
+                """
+                SELECT COUNT(*), COALESCE(AVG(score), 0), COALESCE(SUM(correct), 0)
+                FROM text_question_attempts
+                WHERE substr(created_at, 1, 10) = ?
+                """,
+                (today,),
+            ).fetchone()
+        return {
+            "total": total,
+            "questions_today": int(attempts[0] or 0),
+            "questions_average": round(float(attempts[1] or 0.0)),
+            "questions_correct": int(attempts[2] or 0),
+        }
 
 
 def analysis_json(analysis: dict) -> str:
