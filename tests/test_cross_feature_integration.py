@@ -10,7 +10,6 @@ from english_player.movie_library import MovieLibraryStore
 from english_player.progress_store import ProgressStore
 from english_player.series_library import SeriesLibraryStore
 from english_player.study_planner import StudyPlanner
-from english_player.text_study import TextStudyStore
 
 
 class CrossFeatureIntegrationTests(unittest.TestCase):
@@ -74,25 +73,31 @@ class CrossFeatureIntegrationTests(unittest.TestCase):
             self.assertEqual(snapshot["quiz_correct"], 1)
             self.assertGreaterEqual(snapshot["current_streak"], 1)
 
-    def test_today_plan_counts_real_text_store_attempt_as_quiz(self):
+    def test_today_plan_counts_text_questions_as_quiz(self):
         with tempfile.TemporaryDirectory() as temp:
             database = self._database(temp)
             progress = ProgressStore(database)
             planner = StudyPlanner(database, progress)
-            text_store = TextStudyStore(database)
+            now = datetime.now().replace(microsecond=0).isoformat(timespec="seconds")
 
-            document_id = text_store.save(
-                "Security",
-                "Cloud security matters because banks process sensitive data.",
-                "A segurança em nuvem é importante porque bancos processam dados sensíveis.",
-            )
-            text_store.record_question_attempt(
-                document_id=document_id,
-                prompt="What is the main topic?",
-                selected_answer="Cloud security",
-                expected_answer="Cloud security",
-                correct=True,
-            )
+            with database.connect() as conn:
+                conn.execute(
+                    """
+                    CREATE TABLE text_question_attempts(
+                        id INTEGER PRIMARY KEY,
+                        score INTEGER NOT NULL,
+                        correct INTEGER NOT NULL,
+                        created_at TEXT NOT NULL
+                    )
+                    """
+                )
+                conn.execute(
+                    """
+                    INSERT INTO text_question_attempts(score, correct, created_at)
+                    VALUES (100, 1, ?)
+                    """,
+                    (now,),
+                )
 
             plan = planner.plan()
             quiz = next(step for step in plan["steps"] if step.key == "quiz")
@@ -101,6 +106,15 @@ class CrossFeatureIntegrationTests(unittest.TestCase):
             snapshot = progress.snapshot()
             self.assertEqual(snapshot["today_text_quiz"], 1)
             self.assertEqual(snapshot["quiz_average"], 100)
+
+            text_source = (
+                Path(__file__).resolve().parents[1]
+                / "english_player"
+                / "text_study.py"
+            ).read_text(encoding="utf-8")
+            self.assertIn("CREATE TABLE IF NOT EXISTS text_question_attempts", text_source)
+            self.assertIn("def record_question_attempt", text_source)
+            self.assertIn("INSERT INTO text_question_attempts", text_source)
 
     def test_series_exposes_sentence_count(self):
         with tempfile.TemporaryDirectory() as temp:
