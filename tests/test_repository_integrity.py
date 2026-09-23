@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV292", content)
+        self.assertIn("MainWindowV294", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v292_window.py"
+        source = PACKAGE / "v294_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV292", content)
-        self.assertIn("MainWindowV290", content)
+        self.assertIn("class MainWindowV294", content)
+        self.assertIn("MainWindowV280", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -195,6 +195,13 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("write_text", repair)
         self.assertIn('__version__ = "2.9.3"', repair)
         self.assertNotIn('__version__ = "2.9.3"\\\\n', repair)
+
+
+    def test_v294_rolls_back_unstable_global_layout(self):
+        window = (PACKAGE / "v294_window.py").read_text(encoding="utf-8")
+        self.assertIn("MainWindowV280", window)
+        self.assertNotIn("MainWindowV290", window)
+        self.assertNotIn("QTimer.singleShot", window)
 
 
 if __name__ == "__main__":
