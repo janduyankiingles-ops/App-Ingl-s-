@@ -36,7 +36,7 @@ class MediaRelinkTests(unittest.TestCase):
             try:
                 storage = MediaStorage(db)
             finally:
-                MediaStorage.default_root = original_default
+                MediaStorage.default_root = staticmethod(original_default)
 
             old = str(root / "old.mp4")
             new = str(root / "new.mp4")
@@ -76,7 +76,7 @@ class MediaRelinkTests(unittest.TestCase):
             try:
                 storage = MediaStorage(db)
             finally:
-                MediaStorage.default_root = original_default
+                MediaStorage.default_root = staticmethod(original_default)
 
             old_path = root / "old.mp4"
             new_path = root / "managed" / "new.mp4"
