@@ -523,6 +523,11 @@
       "path": "english_player/v298_window.py",
       "sha256": "120272e3050bc849ca3cacce9ccfa941ed64914a77e8190b985a57bb3c3cb2d8",
       "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/v298_window.py"
+    },
+    {
+      "path": "english_player/main_window.py",
+      "sha256": "1e26c3a5c9a4f2121177d02b495360ad254b3dada4a5d17ef3b6e8191d4c44dc",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/main_window.py"
     }
   ],
   "delete": []
