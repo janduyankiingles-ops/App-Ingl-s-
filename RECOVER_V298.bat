@@ -11,7 +11,7 @@ echo para recuperar a inicializacao da V2.9.7.
 echo Seus dados, biblioteca e progresso nao serao apagados.
 echo.
 
-set "REPAIR_URL=https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/ba0a6f8e676b6eba7cca122f57e8196174c61237/repair_v298.py"
+set "REPAIR_URL=https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/7f953e065d1d18179ffdc71c1f5ae721f9ba4075/repair_v298.py"
 set "REPAIR_FILE=%TEMP%\english_video_player_repair_v298.py"
 
 echo Baixando reparador validado...
