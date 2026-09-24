@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import os
+import sqlite3
+import tempfile
 import unittest
+from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+_TEST_LOCALAPPDATA = tempfile.mkdtemp(prefix="english-player-runtime-")
+os.environ["LOCALAPPDATA"] = _TEST_LOCALAPPDATA
 
 from PySide6.QtWidgets import QApplication
 
@@ -15,7 +20,44 @@ class RuntimeStartupSmokeTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
+    def _create_legacy_database(self):
+        app_dir = Path(_TEST_LOCALAPPDATA) / "EnglishVideoPlayer"
+        app_dir.mkdir(parents=True, exist_ok=True)
+        path = app_dir / "english_video_player.sqlite3"
+        if path.exists():
+            path.unlink()
+
+        with sqlite3.connect(path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE vocabulary (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    word TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE video_library (
+                    path TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    last_position_ms INTEGER NOT NULL DEFAULT 0,
+                    added_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                "CREATE TABLE series_episodes (path TEXT PRIMARY KEY)"
+            )
+            conn.execute(
+                "CREATE TABLE movie_library (path TEXT PRIMARY KEY)"
+            )
+
+        return path
+
     def test_window_starts_and_video_route_installs_layout(self):
+        self._create_legacy_database()
+
         window = MainWindowV298()
         window.resize(1500, 900)
         window.show()
