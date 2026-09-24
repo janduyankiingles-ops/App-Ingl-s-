@@ -83,6 +83,27 @@ class MainWindow(QMainWindow):
                 )
                 """
             )
+
+            # Instalações antigas podem já possuir a tabela vocabulary com
+            # menos colunas. CREATE TABLE IF NOT EXISTS não migra esse esquema,
+            # então os índices modernos falhavam antes da janela aparecer.
+            existing_columns = {
+                str(row["name"])
+                for row in conn.execute("PRAGMA table_info(vocabulary)").fetchall()
+            }
+            migrations = (
+                ("sentence_en", "TEXT NOT NULL DEFAULT ''"),
+                ("sentence_pt", "TEXT NOT NULL DEFAULT ''"),
+                ("video_path", "TEXT NOT NULL DEFAULT ''"),
+                ("timestamp_ms", "INTEGER NOT NULL DEFAULT 0"),
+                ("created_at", "TEXT NOT NULL DEFAULT ''"),
+            )
+            for column, definition in migrations:
+                if column not in existing_columns:
+                    conn.execute(
+                        f'ALTER TABLE vocabulary ADD COLUMN "{column}" {definition}'
+                    )
+
             conn.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_vocabulary_word
