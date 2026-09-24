@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV296", content)
+        self.assertIn("MainWindowV297", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v296_window.py"
+        source = PACKAGE / "v297_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV296", content)
-        self.assertIn("MainWindowV295", content)
+        self.assertIn("class MainWindowV297", content)
+        self.assertIn("MainWindowV296", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -232,6 +232,22 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("Dicionário expandido", window)
         self.assertNotIn("_normalize_tables", window)
         self.assertIn("STUDY_SAFE_STYLE", theme)
+
+
+    def test_v297_video_study_removes_orphan_overlap(self):
+        window = (PACKAGE / "v297_window.py").read_text(encoding="utf-8")
+        theme = (PACKAGE / "v297_theme.py").read_text(encoding="utf-8")
+        self.assertIn("class MainWindowV297", window)
+        self.assertIn("_repair_video_command_panel", window)
+        self.assertIn('child.text().strip().upper() == "IMERSÃO"', window)
+        self.assertIn("immersion_mode_combo", window)
+        self.assertIn("_isolate_video_workspace", window)
+        self.assertIn("QSplitter", window)
+        self.assertIn("TopToBottom", window)
+        self.assertIn("_rebuild_video_player_controls", window)
+        self.assertIn("studyPlayerControlsSafe", window)
+        self.assertIn("studyPlayerControlsSafe", theme)
+        self.assertNotIn("setGeometry(", window)
 
 
 if __name__ == "__main__":
