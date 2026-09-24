@@ -16,7 +16,7 @@ jobs:
       - name: Install Qt runtime libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1
+          sudo apt-get install -y libegl1 libgl1 libpulse0
       - name: Install runtime smoke dependency
         run: python -m pip install "PySide6>=6.8,<7"
       - name: Compile Python sources
