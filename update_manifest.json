@@ -2,7 +2,7 @@
   "version": "2.9.8",
   "manifest_format": 2,
   "source_commit": "9eabc076092734a2a9fe0a6065d8584606fafd34",
-  "notes": "V2.9.8: corrige a inicialização após a V2.9.7. Remove o disconnect genérico que gerava RuntimeWarning, evita QFont com pointSize inválido, migra bancos legados de vocabulário e bibliotecas sem apagar dados, e aplica a correção estrutural de Estudar vídeo somente quando essa tela é aberta. O CI cria de verdade a janela PySide6 e navega para Estudar vídeo antes da publicação. Para instalações V2.9.7 que não conseguem abrir o app para usar o updater, o repositório inclui repair_v298.py e o atalho RECOVER_V298.bat para recuperação de um clique no Windows.",
+  "notes": "V2.9.8: corrige a inicialização após a V2.9.7, migra bancos legados sem apagar dados e aplica a correção estrutural de Estudar vídeo somente quando essa tela é aberta. O manifest agora inclui também database.py, models.py e srt_parser.py, evitando instalações com arquivos Python de versões diferentes. Para instalações parcialmente atualizadas que não conseguem abrir o app, use RECOVER_V298.bat; ele sincroniza 108 arquivos com SHA-256 e cria backup antes de substituir qualquer arquivo.",
   "files": [
     {
       "path": "english_player/review_system.py",
@@ -528,6 +528,21 @@
       "path": "english_player/main_window.py",
       "sha256": "1e26c3a5c9a4f2121177d02b495360ad254b3dada4a5d17ef3b6e8191d4c44dc",
       "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/main_window.py"
+    },
+    {
+      "path": "english_player/database.py",
+      "sha256": "c9ce54b476aaae5b2778e1e38b483ff3fc122be010aaf4dcd2ff8dc0c8f79e38",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/database.py"
+    },
+    {
+      "path": "english_player/models.py",
+      "sha256": "d018fb77107ec0f765993980a1cc7b96eaddf3deefed7cc6e8921a054d78c957",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/models.py"
+    },
+    {
+      "path": "english_player/srt_parser.py",
+      "sha256": "b780558e6d800eadaded6341cfec88258e97bfe7ff71a2f9ea981fe6cea0a1d9",
+      "url": "https://raw.githubusercontent.com/janduyankiingles-ops/App-Ingl-s-/9eabc076092734a2a9fe0a6065d8584606fafd34/english_player/srt_parser.py"
     }
   ],
   "delete": []
