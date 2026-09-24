@@ -34,15 +34,15 @@ class RepositoryIntegrityTests(unittest.TestCase):
 
     def test_main_entrypoint_targets_current_window(self):
         content = (ROOT / "main.py").read_text(encoding="utf-8")
-        self.assertIn("MainWindowV297", content)
+        self.assertIn("MainWindowV298", content)
 
 
     def test_visual_entrypoint_exists(self):
-        source = PACKAGE / "v297_window.py"
+        source = PACKAGE / "v298_window.py"
         self.assertTrue(source.exists())
         content = source.read_text(encoding="utf-8")
-        self.assertIn("class MainWindowV297", content)
-        self.assertIn("MainWindowV296", content)
+        self.assertIn("class MainWindowV298", content)
+        self.assertIn("MainWindowV297", content)
 
     def test_design_system_contains_component_roles(self):
         content = (PACKAGE / "ui_theme.py").read_text(encoding="utf-8")
@@ -185,8 +185,8 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("MainWindowV280.__init__(self)", window)
         self.assertIn("QTimer.singleShot(0", window)
         self.assertIn("_safe_layout_call", window)
-        self.assertIn("header.font()", nav)
-        self.assertNotIn("header_font = QFont()", nav)
+        self.assertIn('QFont("Segoe UI", 10)', nav)
+        self.assertNotIn("header.font()", nav)
         self.assertIn("table.rowCount() <= 200", global_layout)
 
 
@@ -248,6 +248,17 @@ class RepositoryIntegrityTests(unittest.TestCase):
         self.assertIn("studyPlayerControlsSafe", window)
         self.assertIn("studyPlayerControlsSafe", theme)
         self.assertNotIn("setGeometry(", window)
+
+
+    def test_v298_defers_video_reflow_until_route_opens(self):
+        window = (PACKAGE / "v298_window.py").read_text(encoding="utf-8")
+        learn = (PACKAGE / "v295_window.py").read_text(encoding="utf-8")
+        self.assertIn("class MainWindowV298", window)
+        self.assertIn("MainWindowV296.__init__(self)", window)
+        self.assertIn("_v298_install_video_fix_if_needed", window)
+        self.assertIn("tabs.currentChanged.connect", window)
+        self.assertIn("_replace_learn_next_callback", learn)
+        self.assertNotIn("clicked.disconnect()", learn)
 
 
 if __name__ == "__main__":
