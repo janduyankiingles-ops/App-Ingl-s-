@@ -92,6 +92,26 @@ class SeriesLibraryStore:
                 )
                 """
             )
+            existing_columns = {
+                str(row["name"])
+                for row in conn.execute("PRAGMA table_info(series_episodes)").fetchall()
+            }
+            migrations = (
+                ("series_title", "TEXT NOT NULL DEFAULT ''"),
+                ("season_number", "INTEGER NOT NULL DEFAULT 1"),
+                ("episode_number", "INTEGER NOT NULL DEFAULT 1"),
+                ("episode_title", "TEXT NOT NULL DEFAULT ''"),
+                ("last_position_ms", "INTEGER NOT NULL DEFAULT 0"),
+                ("duration_ms", "INTEGER NOT NULL DEFAULT 0"),
+                ("added_at", "TEXT NOT NULL DEFAULT ''"),
+                ("last_opened_at", "TEXT NOT NULL DEFAULT ''"),
+            )
+            for column, definition in migrations:
+                if column not in existing_columns:
+                    conn.execute(
+                        f'ALTER TABLE series_episodes ADD COLUMN "{column}" {definition}'
+                    )
+
             conn.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_series_episodes_order
