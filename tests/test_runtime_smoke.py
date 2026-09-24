@@ -7,8 +7,6 @@ import unittest
 from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-_TEST_LOCALAPPDATA = tempfile.mkdtemp(prefix="english-player-runtime-")
-os.environ["LOCALAPPDATA"] = _TEST_LOCALAPPDATA
 
 from PySide6.QtWidgets import QApplication
 
@@ -18,16 +16,16 @@ from english_player.v298_window import MainWindowV298
 class RuntimeStartupSmokeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = QApplication.instance() or QApplication([])
+        cls.temp_dir = tempfile.TemporaryDirectory(prefix="evp_runtime_smoke_")
+        os.environ["LOCALAPPDATA"] = cls.temp_dir.name
 
-    def _create_legacy_database(self):
-        app_dir = Path(_TEST_LOCALAPPDATA) / "EnglishVideoPlayer"
+        app_dir = Path(cls.temp_dir.name) / "EnglishVideoPlayer"
         app_dir.mkdir(parents=True, exist_ok=True)
-        path = app_dir / "english_video_player.sqlite3"
-        if path.exists():
-            path.unlink()
+        cls.database_path = app_dir / "english_video_player.sqlite3"
 
-        with sqlite3.connect(path) as conn:
+        with sqlite3.connect(cls.database_path) as conn:
+            # Simula instalação antiga: tabelas existentes, mas sem colunas
+            # adicionadas pelas versões mais novas.
             conn.execute(
                 """
                 CREATE TABLE vocabulary (
@@ -37,27 +35,29 @@ class RuntimeStartupSmokeTests(unittest.TestCase):
                 """
             )
             conn.execute(
+                "INSERT INTO vocabulary(word) VALUES (?)",
+                ("legacy-word",),
+            )
+            conn.execute(
                 """
                 CREATE TABLE video_library (
                     path TEXT PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    last_position_ms INTEGER NOT NULL DEFAULT 0,
-                    added_at TEXT NOT NULL
+                    title TEXT NOT NULL
                 )
                 """
             )
             conn.execute(
-                "CREATE TABLE series_episodes (path TEXT PRIMARY KEY)"
-            )
-            conn.execute(
-                "CREATE TABLE movie_library (path TEXT PRIMARY KEY)"
+                "INSERT INTO video_library(path, title) VALUES (?, ?)",
+                ("legacy.mp4", "Legacy"),
             )
 
-        return path
+        cls.app = QApplication.instance() or QApplication([])
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp_dir.cleanup()
 
     def test_window_starts_and_video_route_installs_layout(self):
-        self._create_legacy_database()
-
         window = MainWindowV298()
         window.resize(1500, 900)
         window.show()
@@ -66,6 +66,24 @@ class RuntimeStartupSmokeTests(unittest.TestCase):
             self.app.processEvents()
 
         self.assertTrue(window.isVisible())
+
+        with sqlite3.connect(self.database_path) as conn:
+            vocabulary_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(vocabulary)")
+            }
+            video_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(video_library)")
+            }
+            legacy_word = conn.execute(
+                "SELECT word FROM vocabulary WHERE word = 'legacy-word'"
+            ).fetchone()
+
+        self.assertIsNotNone(legacy_word)
+        self.assertIn("sentence_en", vocabulary_columns)
+        self.assertIn("sentence_pt", vocabulary_columns)
+        self.assertIn("video_path", vocabulary_columns)
+        self.assertIn("timestamp_ms", vocabulary_columns)
+        self.assertIn("last_opened_at", video_columns)
 
         study = window._find_tab_widget("estudar")
         self.assertIsNotNone(study)
