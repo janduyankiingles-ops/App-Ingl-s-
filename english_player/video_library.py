@@ -37,6 +37,22 @@ class VideoLibraryStore:
                 )
                 """
             )
+            existing_columns = {
+                str(row["name"])
+                for row in conn.execute("PRAGMA table_info(video_library)").fetchall()
+            }
+            migrations = (
+                ("title", "TEXT NOT NULL DEFAULT ''"),
+                ("last_position_ms", "INTEGER NOT NULL DEFAULT 0"),
+                ("added_at", "TEXT NOT NULL DEFAULT ''"),
+                ("last_opened_at", "TEXT NOT NULL DEFAULT ''"),
+            )
+            for column, definition in migrations:
+                if column not in existing_columns:
+                    conn.execute(
+                        f'ALTER TABLE video_library ADD COLUMN "{column}" {definition}'
+                    )
+
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_video_library_opened "
                 "ON video_library(last_opened_at)"

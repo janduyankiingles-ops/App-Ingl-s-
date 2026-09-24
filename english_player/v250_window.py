@@ -369,7 +369,7 @@ class MainWindowV250(MainWindowV240):
             header.setFlags(
                 Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
             )
-            header_font = header.font()
+            header_font = QFont("Segoe UI", 10)
             header_font.setWeight(QFont.Weight.DemiBold)
             header.setFont(header_font)
             header.setForeground(QColor("#8B98A9"))

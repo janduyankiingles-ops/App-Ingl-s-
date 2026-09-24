@@ -193,6 +193,7 @@ class MainWindowV295(MainWindowV294):
         self.learn_next_title = None
         self.learn_next_detail = None
         self.learn_next_button = None
+        self._learn_next_callback = None
         super().__init__()
         self.setStyleSheet(LEARN_SAFE_STYLE)
 
@@ -381,11 +382,7 @@ class MainWindowV295(MainWindowV294):
                 callback = lambda: self._open_main_route("practice")
 
             self.learn_next_button.setEnabled(True)
-            try:
-                self.learn_next_button.clicked.disconnect()
-            except Exception:
-                pass
-            self.learn_next_button.clicked.connect(callback)
+            self._replace_learn_next_callback(callback)
             return
 
         title = str(getattr(current, "title", "") or "Próxima atividade")
@@ -407,10 +404,16 @@ class MainWindowV295(MainWindowV294):
         self.learn_next_button.setText("COMEÇAR")
         self.learn_next_button.setEnabled(True)
 
-        try:
-            self.learn_next_button.clicked.disconnect()
-        except Exception:
-            pass
-        self.learn_next_button.clicked.connect(
+        self._replace_learn_next_callback(
             lambda _checked=False, key=current.key: self._open_path_step(key)
         )
+
+    def _replace_learn_next_callback(self, callback):
+        previous = getattr(self, "_learn_next_callback", None)
+        if previous is not None:
+            try:
+                self.learn_next_button.clicked.disconnect(previous)
+            except (RuntimeError, TypeError):
+                pass
+        self._learn_next_callback = callback
+        self.learn_next_button.clicked.connect(callback)
